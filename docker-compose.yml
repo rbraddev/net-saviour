@@ -1,0 +1,35 @@
+version: '3.7'
+
+services:
+  nsav-web:
+    container_name: nsav-web
+    build: ./backend
+    command: uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    volumes:
+      - ./backend:/usr/src/app
+    ports:
+      - 8000:8000
+    environment:
+      - PROJECT=net-saviour
+      - ENVIRONMENT=dev
+      - AUTH_SECRET_KEY=740e812e52f29efb13c903ec80951fa2616155ad8d80ce644537aee284398538
+      - AUTH_TOKEN_EXPIRY_MINUTES=15
+      - AUTH_MODE=tacacs
+      - TACACS_SVR=tacacs
+      - TACACS_KEY=tac_plus_key
+    depends_on:
+      - nsav-db
+  nsav-db:
+    container_name: nsav-db
+    image: edgedb/edgedb
+    volumes:
+      - edgedb-data:/var/lib/edgedb/data
+    expose:
+      - 5656
+  tacacs:
+    container_name: tacacs
+    image: lfkeitel/tacacs_plus:alpine
+    expose:
+      - 49
+volumes:
+  edgedb-data:
