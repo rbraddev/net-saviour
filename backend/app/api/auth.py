@@ -5,6 +5,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 from app.config import get_settings, Settings
 from app.core.security.utils import get_auth_mode, create_access_token
+from app.schemas.token import Token
 
 
 router = APIRouter()
@@ -13,7 +14,7 @@ httpbasic = HTTPBasic()
 log = logging.getLogger(__name__)
 
 
-@router.post("/token")
+@router.post("/token", response_model=Token)
 async def get_access_token(
     credentials: HTTPBasicCredentials = Depends(httpbasic),
     settings: Settings = Depends(get_settings),
