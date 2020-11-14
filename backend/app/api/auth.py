@@ -27,7 +27,7 @@ async def get_access_token(
     auth_mode = get_auth_mode()
     auth = auth_mode(credentials.username, credentials.password)
 
-    await auth.authenticate() if auth_mode.concurrency == "async" else auth.authenticate()
+    await auth.aauthenticate() if auth_mode.concurrency == "async" else auth.authenticate()
 
     access_token = create_access_token(
         data={"sub": credentials.username},

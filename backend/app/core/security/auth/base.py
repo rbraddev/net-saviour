@@ -11,3 +11,6 @@ class Auth:
 
     def authenticate(self) -> NotImplemented:
         return NotImplemented
+
+    async def aauthenticate(self) -> NotImplemented:
+        return NotImplemented

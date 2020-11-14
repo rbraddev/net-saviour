@@ -11,7 +11,7 @@ settings = get_settings()
 class TacacsAuth(Auth):
     concurrency = "sync"
 
-    def authenticate(self):
+    def authenticate(self) -> None:
         try:
             client = TACACSClient(host=settings.TACACS_SVR, port=49, secret=settings.TACACS_KEY)
         except ConnectionRefusedError:
