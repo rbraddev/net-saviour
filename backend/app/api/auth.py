@@ -5,7 +5,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 from app.config import get_settings, Settings
 from app.core.security.utils import get_auth_mode, create_access_token
-from app.schemas.token import Token
+from app.models.token import Token
 
 
 router = APIRouter()
@@ -19,16 +19,16 @@ async def get_access_token(
     credentials: HTTPBasicCredentials = Depends(httpbasic),
     settings: Settings = Depends(get_settings),
 ):
+    auth_mode = get_auth_mode(settings.AUTH_MODE)
+    auth = auth_mode(credentials.username, credentials.password)
+
+    await auth.aauthenticate() if auth_mode.concurrency == "async" else auth.authenticate()
+
     expiry, key, algorithm = (
         settings.AUTH_TOKEN_EXPIRY,
         settings.AUTH_KEY,
         settings.TOKEN_ALGORITHM,
     )
-    auth_mode = get_auth_mode()
-    auth = auth_mode(credentials.username, credentials.password)
-
-    await auth.aauthenticate() if auth_mode.concurrency == "async" else auth.authenticate()
-
     access_token = create_access_token(
         data={"sub": credentials.username},
         expiry=expiry,

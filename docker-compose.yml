@@ -1,8 +1,8 @@
 version: '3.7'
 
 services:
-  nsav-web:
-    container_name: nsav-web
+  nsav-api:
+    container_name: nsav-api
     build: ./backend
     command: uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
     volumes:
