@@ -17,5 +17,13 @@ async def pong(settings: Settings = Depends(get_settings)):
 
 
 @router.get("/protected_ping", response_model=ProtectedPong)
-async def protected_pong(username: str = Security(get_current_user), settings: Settings = Depends(get_settings)):
-    return {"ping": "pong", "project": settings.PROJECT, "environment": settings.ENVIRONMENT, "username": username}
+async def protected_pong(
+    username: str = Security(get_current_user),
+    settings: Settings = Depends(get_settings),
+):
+    return {
+        "ping": "pong",
+        "project": settings.PROJECT,
+        "environment": settings.ENVIRONMENT,
+        "username": username,
+    }

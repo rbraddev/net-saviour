@@ -16,4 +16,9 @@ def test_protected_ping_success(test_app_tacacs, get_access_token):
     print(access_token)
     response = test_app_tacacs.get("/protected_ping", headers={"Authorization": f"Bearer {access_token}"})
     # assert response.status_code == 200
-    assert response.json() == {"ping": "pong", "project": Settings().PROJECT, "environment": "dev", "username": "admin"}
+    assert response.json() == {
+        "ping": "pong",
+        "project": Settings().PROJECT,
+        "environment": "dev",
+        "username": "admin",
+    }

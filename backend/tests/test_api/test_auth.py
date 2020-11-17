@@ -11,7 +11,11 @@ def test_get_token_with_valid_credentials(test_app_tacacs):
 
 @pytest.mark.parametrize(
     "username, password",
-    [["username_no_pass", ""], ["", "no_username_with_pass"], ["bogus_user", "bogus_pass"]],
+    [
+        ["username_no_pass", ""],
+        ["", "no_username_with_pass"],
+        ["bogus_user", "bogus_pass"],
+    ],
 )
 def test_get_token_with_invalid_credentials(test_app_tacacs, username, password):
     response = test_app_tacacs.post("/auth/token", auth=(username, password))

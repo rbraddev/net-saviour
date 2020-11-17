@@ -2,8 +2,8 @@ import app.core.errors as errors
 
 
 class Auth:
-    def __init__(self, username, password):
-        if None in [username, password]:
+    def __init__(self, username: str, password: str):
+        if "" in [username, password]:
             raise errors.unauth_error("Incorrect username or password", "Basic")
 
         self.username: str = username
