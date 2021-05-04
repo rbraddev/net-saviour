@@ -17,11 +17,6 @@ def test_tacacs_obj_init_no_password_fail():
         TacacsAuth(username="admin", password="")
 
 
-def test_tacacs_authenticate_failed_connection(tacacs_auth_obj):
-    with pytest.raises(HTTPException):
-        tacacs_auth_obj.authenticate()
-
-
 def test_tacacs_auth(monkeypatch, tacacs_auth_obj):
     def mock_auth():
         return True

@@ -1,5 +1,5 @@
   
-FROM python:3.8.5-slim-buster
+FROM python:3.9.4-slim-buster
 
 WORKDIR /usr/src/app
 
@@ -17,5 +17,3 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
 
 COPY ./pyproject.toml poetry.lock ./
 RUN poetry install --no-root
-
-COPY . .
