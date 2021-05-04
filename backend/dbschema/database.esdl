@@ -1,4 +1,4 @@
-module default{
+module inventory{
     type NetworkDevice {
         required property hostname -> str {
             constraint exclusive;
@@ -25,5 +25,5 @@ module default{
         property is_active -> bool {
             default := false;
         };
-    }
-}
+    };
+};

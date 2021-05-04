@@ -23,9 +23,13 @@ services:
     container_name: nsav-db
     image: edgedb/edgedb
     volumes:
+      - ./backend/dbschema:/dbschema
       - edgedb-data:/var/lib/edgedb/data
-    expose:
-      - 5656
+    ports:
+      - 5656:5656
+    environment:
+      - EDGEDB_USER=edgedb
+      - EDGEDB_PASSWORD=edgedb
   tacacs:
     container_name: tacacs
     image: lfkeitel/tacacs_plus:alpine

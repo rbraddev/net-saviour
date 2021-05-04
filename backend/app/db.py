@@ -4,12 +4,12 @@ from edgedb import AsyncIOConnection, AsyncIOPool, create_async_pool
 
 from app.config import settings
 
-pool: AsyncIOPool
+db_pool: AsyncIOPool
 
 
 async def create_pool() -> None:
-    global pool
-    pool = await create_async_pool(
+    global db_pool
+    db_pool = await create_async_pool(
         host=settings.EDGEDB_HOST,
         database=settings.EDGEDB_DB,
         user=settings.EDGEDB_USER,
@@ -17,12 +17,12 @@ async def create_pool() -> None:
 
 
 async def close_pool() -> None:
-    await pool.aclose()
+    await db_pool.aclose()
 
 
 async def get_con() -> AsyncGenerator[AsyncIOConnection, None]:
     try:
-        con = await pool.acquire()
+        con = await db_pool.acquire()
         yield con
     finally:
-        await pool.release(con)
+        await db_pool.release(con)

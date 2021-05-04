@@ -18,7 +18,7 @@ class Settings(BaseSettings):
 
     EDGEDB_HOST: str = os.environ.get("EDGEDB_HOST", "nsav-db")
     EDGEDB_USER: str = os.environ.get("EDGEDB_USER", "edgedb")
-    EDGEDB_PASSWORD: str = os.environ.get("EDGEDB_PASSWORD")
+    EDGEDB_PASSWORD: str = os.environ.get("EDGEDB_PASSWORD", "edgedb")
     EDGEDB_DB: str = os.environ.get("EDGEDB_DB", "edgedb")
 
     TACACS_SVR: str = os.environ.get("TACACS_HOST", "localhost")
