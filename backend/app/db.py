@@ -2,8 +2,9 @@ from typing import AsyncGenerator
 
 from edgedb import AsyncIOConnection, AsyncIOPool, create_async_pool
 
-from app.config import settings
+from app.config import get_settings, Settings
 
+settings: Settings = get_settings()
 db_pool: AsyncIOPool
 
 
@@ -13,6 +14,7 @@ async def create_pool() -> None:
         host=settings.EDGEDB_HOST,
         database=settings.EDGEDB_DB,
         user=settings.EDGEDB_USER,
+        password=settings.EDGEDB_PASSWORD,
     )
 
 
