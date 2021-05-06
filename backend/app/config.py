@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     TACACS_SVR: str = os.environ.get("TACACS_HOST", "localhost")
     TACACS_KEY: str = os.environ.get("TACACS_PLUS_KEY")
 
+    SW_HOST:str = os.environ.get("SW_HOST")
+    SW_USER:str = os.environ.get("SW_USER")
+    SW_PASSWORD:str = os.environ.get("SW_PASSWORD")
+
 
 @lru_cache
 def get_settings() -> BaseSettings:
