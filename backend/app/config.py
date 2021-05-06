@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     TOKEN_ALGORITHM: str = os.environ.get("TOKEN_ALGORITHM", "HS256")
     AUTH_MODE: str = os.environ.get("AUTH_MODE")
 
-    EDGEDB_HOST: str = os.environ.get("EDGEDB_HOST", "nsav-db")
+    EDGEDB_HOST: str = os.environ.get("EDGEDB_HOST", "localhost")
     EDGEDB_USER: str = os.environ.get("EDGEDB_USER", "edgedb")
     EDGEDB_PASSWORD: str = os.environ.get("EDGEDB_PASSWORD", "edgedb")
     EDGEDB_DB: str = os.environ.get("EDGEDB_DB", "edgedb")
