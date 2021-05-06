@@ -1,6 +1,6 @@
 from typing import AsyncGenerator
 
-from edgedb import AsyncIOConnection, AsyncIOPool, create_async_pool
+from edgedb import AsyncIOConnection, AsyncIOPool, create_async_pool, BlockingIOConnection, connect
 
 from app.config import get_settings, Settings
 
@@ -22,9 +22,19 @@ async def close_pool() -> None:
     await db_pool.aclose()
 
 
-async def get_con() -> AsyncGenerator[AsyncIOConnection, None]:
+async def get_acon() -> AsyncGenerator[AsyncIOConnection, None]:
     try:
         con = await db_pool.acquire()
         yield con
     finally:
         await db_pool.release(con)
+
+
+def get_con() -> BlockingIOConnection:
+    con = connect(
+        host=settings.EDGEDB_HOST,
+        database=settings.EDGEDB_DB,
+        user=settings.EDGEDB_USER,
+        password=settings.EDGEDB_PASSWORD,
+    )
+    return con

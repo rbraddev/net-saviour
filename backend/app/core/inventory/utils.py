@@ -7,7 +7,7 @@ from app.config import Settings, get_settings
 settings:Settings = get_settings()
 
 
-async def pull_sw_inventory() -> Union[dict, List[dict]]:
+def pull_sw_inventory() -> Union[dict, List[dict]]:
     # headers = {"Content-Type": "application/json"}
     # data = {
     #     "query": "SELECT NodeID, IPAddress, NodeName, IOSImage FROM Orion.Nodes WHERE NodeName LIKE @s OR NodeName LIKE @r OR NodeName LIKE @n",

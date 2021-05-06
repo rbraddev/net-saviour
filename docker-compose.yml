@@ -19,7 +19,7 @@ services:
     container_name: nsav-db
     image: edgedb/edgedb
     volumes:
-      # - ./backend/dbschema:/dbschema
+      - ./backend/dbschema:/dbschema
       - edgedb-data:/var/lib/edgedb/data
     expose:
       - 5656

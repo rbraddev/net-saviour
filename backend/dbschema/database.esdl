@@ -1,11 +1,15 @@
 module inventory{
     type NetworkDevice {
+        required property nodeid -> int64 {
+            constraint exclusive;
+        };
         required property hostname -> str {
             constraint exclusive;
         };
         required property ip -> str {
             constraint exclusive;
         };
+        property image -> str;
     };
     type Desktop {
         required property hostname -> str {
