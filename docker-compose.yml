@@ -3,31 +3,24 @@ version: '3.7'
 services:
   nsav-api:
     container_name: nsav-api
-    build: ./backend
-    command: sh -c "PYTHONPATH=. python app/initial_data.py &&
-                uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
+    build:
+      context: .
+      dockerfile: ./compose/local/backend/api/Dockerfile
+    command: /start.sh
     volumes:
       - ./backend:/usr/src/app
     ports:
       - 8000:8000
-    environment:
-      - PROJECT=net-saviour
-      - ENVIRONMENT=dev
-      - AUTH_SECRET_KEY=740e812e52f29efb13c903ec80951fa2616155ad8d80ce644537aee284398538
-      - AUTH_TOKEN_EXPIRY_MINUTES=15
-      - AUTH_MODE=tacacs
-      - TACACS_SVR=tacacs
-      - TACACS_KEY=tac_plus_key
+    env_file:
+      - .env/.dev
     depends_on:
       - nsav-db
   nsav-db:
     container_name: nsav-db
     image: edgedb/edgedb
     volumes:
-      - ./backend/dbschema:/dbschema
-    #   - edgedb-data:/var/lib/edgedb/data
-    # ports:
-    #   - 5656:5656
+      # - ./backend/dbschema:/dbschema
+      - edgedb-data:/var/lib/edgedb/data
     expose:
       - 5656
     environment:
@@ -38,5 +31,5 @@ services:
     image: lfkeitel/tacacs_plus:alpine
     expose:
       - 49
-# volumes:
-#   edgedb-data:
+volumes:
+  edgedb-data:
