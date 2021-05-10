@@ -1,4 +1,4 @@
-CREATE MIGRATION m1fq36irignbl5piowcbfojnlsoxvzlx3ezx62w5kcmktewwrzl5ia
+CREATE MIGRATION m1cavgnegroiozc5lvsixauiduwqxv4x5pfq7gpc3wp6uixjibo3aq
     ONTO initial
 {
   CREATE MODULE inventory IF NOT EXISTS;
@@ -6,8 +6,6 @@ CREATE MIGRATION m1fq36irignbl5piowcbfojnlsoxvzlx3ezx62w5kcmktewwrzl5ia
       CREATE REQUIRED PROPERTY hostname -> std::str {
           CREATE CONSTRAINT std::exclusive;
       };
-      CREATE PROPERTY image2 -> std::str;
-      CREATE PROPERTY image3 -> std::str;
       CREATE PROPERTY image -> std::str;
       CREATE REQUIRED PROPERTY ip -> std::str {
           CREATE CONSTRAINT std::exclusive;

@@ -3,8 +3,10 @@ from edgedb import BlockingIOConnection
 from app import db
 from app.core.inventory.utils import pull_sw_inventory
 
-def populate_inventory() -> None:
+
+def update_inventory() -> None:
     sw_inventory = pull_sw_inventory()
+
 
     if sw_inventory:
         con: BlockingIOConnection = db.get_con()
