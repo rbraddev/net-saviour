@@ -21,13 +21,4 @@ module inventory{
         link switch -> NetworkDevice;
         property switch_port -> str;
     };
-    type User {
-        required property username -> str;
-        property is_superuser -> bool {
-            default := false;
-        };
-        property is_active -> bool {
-            default := false;
-        };
-    };
 };

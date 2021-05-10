@@ -9,13 +9,12 @@ def populate_inventory() -> None:
     if sw_inventory:
         con: BlockingIOConnection = db.get_con()
 
-        with con.raw_transaction() as tx:
-            for node in sw_inventory:
-                tx.execute("""
-                    INSERT inventory::NetworkDevice {
-                        nodeid := <int64>$NodeID,
-                        hostname := <str>$NodeName,
-                        ip := <str>$IPAddress,
-                        image := <str>$IOSImage,
-                    }
-                """, **node)
+        for node in sw_inventory:
+            con.query("""
+                INSERT inventory::NetworkDevice {
+                    nodeid := <int64>$NodeID,
+                    hostname := <str>$NodeName,
+                    ip := <str>$IPAddress,
+                    image := <str>$IOSImage,
+                }
+            """, **node)

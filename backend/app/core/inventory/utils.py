@@ -28,37 +28,37 @@ def pull_sw_inventory() -> Union[dict, List[dict]]:
     #     return response["results"]
     # else:
     #     return None
-    results = [
-	    {
-		    "NodeID": 123,
+	results = [
+		{
+			"NodeID": 1233,
 			"IPAddress": "10.1.1.1",
 			"NodeName": "SWITCH1",
 			"IOSImage": "nxos9.4.2"
 		},
-        {
-		    "NodeID": 124,
+		{
+			"NodeID": 1243,
 			"IPAddress": "10.1.1.2",
 			"NodeName": "SWITCH2",
 			"IOSImage": "nxos9.4.2"
 		},
-        {
-		    "NodeID": 125,
+		{
+			"NodeID": 1253,
 			"IPAddress": "10.1.1.3",
 			"NodeName": "SWITCH3",
 			"IOSImage": "ios-15.1.5"
 		},
-        {
-		    "NodeID": 126,
+		{
+			"NodeID": 1263,
 			"IPAddress": "10.1.1.4",
 			"NodeName": "SWITCH4",
 			"IOSImage": "ios-15.1.5"
 		},
-        {
-		    "NodeID": 127,
+		{
+			"NodeID": 1273,
 			"IPAddress": "10.1.1.5",
 			"NodeName": "SWITCH5",
 			"IOSImage": "ios-15.1.5"
 		},
 	]
-
-    return results
+	# return [{k.lower(): v for k, v in r.items()} for r in results]
+	return results
