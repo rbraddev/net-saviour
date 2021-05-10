@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 db_pool: edgedb.AsyncIOPool
 settings: Settings = get_settings()
 
+
 def create_application() -> FastAPI:
     application = FastAPI(
         title=settings.PROJECT,
