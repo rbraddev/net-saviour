@@ -1,0 +1,2 @@
+con.query("with module inventory select NetworkDevice {hostname, device := (select Desktop {hostname, switch_port} filter .switch = (select NetworkDevice filter .nodeid = <int64>$nodeid))} filter .node
+id = <int64>$nodeid", nodeid=1233)

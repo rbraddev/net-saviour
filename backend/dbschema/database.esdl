@@ -10,6 +10,9 @@ module inventory{
             constraint exclusive;
         };
         property image -> str;
+        required property active -> bool{
+            default := true;
+        };
     };
     type Desktop {
         required property hostname -> str {

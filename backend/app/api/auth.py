@@ -5,7 +5,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 from app.config import get_settings, Settings
 from app.core.security.utils import get_auth_mode, create_access_token
-from app.models.token import Token
+from app.models.pydantic.token import Token
 
 
 router = APIRouter()
