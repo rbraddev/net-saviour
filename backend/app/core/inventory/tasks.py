@@ -21,21 +21,10 @@ def update_inventory() -> None:
 
         for device in sw_ids.difference(db_ids):
             if inventory.get(con, node_type="NetworkDevice", filter_criteria=[{"nodeid": device.nodeid}]):
-                # update
-                pass
+                print(f"updating {device.nodeid}")
+                inventory.update(con, node_type="NetworkDevice", data=device._asdict())
+                print(f"updated {device.nodeid}")
             else:
-                # insert
-                pass
-
-        for node in sw_inventory:
-            con.query(
-                """
-                INSERT inventory::NetworkDevice {
-                    nodeid := <int64>$NodeID,
-                    hostname := <str>$NodeName,
-                    ip := <str>$IPAddress,
-                    image := <str>$IOSImage,
-                }
-            """,
-                **node,
-            )
+                print(f"adding {device.nodeid}")
+                inventory.create(con, node_type="NetworkDevice", data=device._asdict())
+                print(f"added {device.nodeid}")

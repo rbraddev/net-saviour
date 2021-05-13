@@ -1,19 +1,36 @@
 from typing import List, Dict, Any, Union
 
-from edgedb import BlockingIOConnection, AsyncIOConnection, NoDataError
+from edgedb import BlockingIOConnection, AsyncIOConnection
+from edgedb.errors import NoDataError, ConstraintViolationError
 
-from app.core.utils import get_filter_str, get_filter_criteria
-from app.models.edge.inventory import get_device_create_query
+from app.core.utils import get_filter_str, get_filter_criteria, get_query
+
 
 
 def create(con: BlockingIOConnection, *, node_type: str, data: dict) -> Union[str, None]:
-    result = con.query(
-        f"""INSERT inventory::{node_type} {{
-            {get_device_create_query(node_type)}
-        }}
-        """,
-        **data,
-    )
+    try:
+        result = con.query(
+            f"""INSERT inventory::{node_type} {{
+                {get_query(data)}
+            }}
+            """,
+            **data,
+        )
+    except ConstraintViolationError:
+        return None
+    return result
+
+
+def update(con: BlockingIOConnection, *, node_type: str, data: dict) -> Union[str, None]:
+    try:
+        result = con.query(
+            f"""UPDATE inventory::{node_type} FILTER .nodeid = <int64>$nodeid
+            SET {{{get_query(data)}}}
+            """,
+            **data,
+        )
+    except ConstraintViolationError:
+        return None
     return result
 
 

@@ -12,10 +12,10 @@ def get_type(value: Any) -> str:
         raise ValueError("Type not found.")
 
 
-def get_shape(data: Dict[str, Any]) -> str:
-    shape_list = [f"{k} := {get_type(v)}${k}" for k, v in data.items()]
-    shape_expr = ", ".join(shape_list)
-    return shape_expr
+def get_query(data: Dict[str, Any]) -> str:
+    query_list = [f"{k} := {get_type(v)}${k}" for k, v in data.items()]
+    query_expr = ", ".join(query_list)
+    return query_expr
 
 
 def get_filter_str(data: List[Dict[str, Any]]) -> str:
