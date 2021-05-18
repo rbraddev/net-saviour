@@ -13,6 +13,8 @@ edgedb = "^0.13.0"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 pyjwt = "^1.7.1"
 uvicorn = "^0.13.4"
+celery = "4.4.7"
+redis = "^3.5.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.2"
