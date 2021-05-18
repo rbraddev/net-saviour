@@ -17,9 +17,7 @@ services:
       - nsav-db
   nsav-db:
     container_name: nsav-db
-    build:
-      context: .
-      dockerfile: ./compose/local/backend/db/Dockerfile
+    image: edgedb/edgedb
     volumes:
       - ./backend/dbschema:/dbschema
       - edgedb-data:/var/lib/edgedb/data
