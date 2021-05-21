@@ -1,5 +1,4 @@
-  
-FROM python:3.9.4-slim-buster
+  FROM python:3.9.4-slim-buster
 
 WORKDIR /usr/src/app
 
@@ -25,5 +24,13 @@ RUN chmod +x /entrypoint.sh
 COPY ./compose/local/backend/api/start.sh /start.sh
 RUN sed -i 's/\r$//g' /start.sh
 RUN chmod +x /start.sh
+
+COPY ./compose/local/backend/celery/worker/start.sh /start-celeryworker.sh
+RUN sed -i 's/\r$//g' /start-celeryworker.sh
+RUN chmod +x /start-celeryworker.sh
+
+COPY ./compose/local/backend/celery/flower/start.sh /start-flower.sh
+RUN sed -i 's/\r$//g' /start-flower.sh
+RUN chmod +x /start-flower.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
