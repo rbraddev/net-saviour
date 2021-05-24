@@ -38,7 +38,7 @@ def pull_sw_inventory() -> Union[dict, List[dict]]:
         {"NodeID": 12434, "IPAddress": "10.1.1.24", "NodeName": "SWITCH1114", "IOSImage": "nxos9.4.2"},
         {"NodeID": 12534, "IPAddress": "10.1.1.34", "NodeName": "SWITCH3333", "IOSImage": "ios-15.1.5"},
         {"NodeID": 12634, "IPAddress": "10.1.1.44", "NodeName": "SWITCH1118", "IOSImage": "ios-15.1.5"},
-        {"NodeID": 12734, "IPAddress": "10.1.1.54", "NodeName": "SWITCH45", "IOSImage": "ios-15.1.5"}
+        {"NodeID": 12734, "IPAddress": "10.1.1.54", "NodeName": "SWITCH45", "IOSImage": "ios-15.1.5"},
     ]
     return [{k.lower(): v for k, v in r.items()} for r in results]
     # return results
@@ -51,4 +51,3 @@ def get_site(hostname: str) -> str:
         print(f"INVALID SITE: {hostname}")
         return "999"
     return site
-    

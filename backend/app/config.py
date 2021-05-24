@@ -10,10 +10,11 @@ log = logging.getLogger(__name__)
 
 
 def route_task(name, args, kwargs, options, task=None, **kw):
-    if ':' in name:
-        queue, _ = name.split(':')
-        return {'queue': queue}
-    return {'queue': 'default'}
+    if ":" in name:
+        queue, _ = name.split(":")
+        return {"queue": queue}
+    return {"queue": "default"}
+
 
 class Settings(BaseSettings):
     PROJECT: str = os.getenv("PROJECT", "FastAPI")
@@ -35,15 +36,16 @@ class Settings(BaseSettings):
     SW_USER: str = os.environ.get("SW_USER")
     SW_PASSWORD: str = os.environ.get("SW_PASSWORD")
 
-class CeleryConfig():
+
+class CeleryConfig:
     broker_url = os.environ.get("CELERY_BROKER_URL", "redis://127.0.0.1:6379/0")
     result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://127.0.0.1:6379/0")
-    task_default_queue = 'default'
+    task_default_queue = "default"
     task_create_missing_queues = False
     task_queues = (
-        Queue('default'),
-        Queue('high_priority'),
-        Queue('low_priority'),
+        Queue("default"),
+        Queue("high_priority"),
+        Queue("low_priority"),
     )
     task_routes = (route_task,)
 

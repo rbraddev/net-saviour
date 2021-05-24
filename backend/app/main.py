@@ -5,7 +5,7 @@ from fastapi import FastAPI
 import edgedb
 
 from app.config import get_settings, Settings
-from app.api import auth, ping
+from app.api import auth, ping, inventory
 from app.db import create_pool, close_pool
 
 log = logging.getLogger(__name__)
@@ -21,6 +21,7 @@ def create_application() -> FastAPI:
     )
     application.include_router(ping.router)
     application.include_router(auth.router, prefix="/auth", tags=["auth"])
+    application.include_router(inventory.router, prefix="/inventory", tags=["inventory"])
 
     return application
 

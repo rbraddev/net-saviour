@@ -35,7 +35,6 @@ def update_inventory() -> None:
 
             for device in db_ids.difference(sw_ids):
                 print(f"Deactivating {device.nodeid}")
-                inventory.update(con, node_type="NetworkDevice", data={"nodeid": device.nodeid, "active": False})        
+                inventory.update(con, node_type="NetworkDevice", data={"nodeid": device.nodeid, "active": False})
         else:
             print("Inventory already up tp date")
-

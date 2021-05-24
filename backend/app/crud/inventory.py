@@ -6,7 +6,6 @@ from edgedb.errors import NoDataError, ConstraintViolationError
 from app.core.utils import get_filter_str, get_filter_criteria, get_query
 
 
-
 def create(con: BlockingIOConnection, *, node_type: str, data: dict) -> Union[str, None]:
     try:
         result = con.query(
