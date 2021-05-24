@@ -1,9 +1,9 @@
-device_create_query = {
-    "NetworkDevice": """
+shape_model = {
+    "network_get": """inventory::NetworkDevice {
         nodeid := <int64>$nodeid,
         hostname := <str>$hostname,
         ip := <str>$ip,
-        """,
+    }""",
     "Desktop": """
         hostname := <str>$hostname, 
         ip := <str>$ip,
@@ -15,5 +15,5 @@ device_create_query = {
 }
 
 
-def get_device_create_query(node_type: str) -> str:
-    return device_create_query.get(node_type)
+def get_shape(shape: str) -> str:
+    return shape_model.get(shape)

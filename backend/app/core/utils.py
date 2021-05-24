@@ -1,5 +1,7 @@
 from typing import Any, Dict, List
 
+# from app.models.edge.inventory import get_query_model
+
 
 def get_type(value: Any) -> str:
     if type(value) == bool:
@@ -36,3 +38,13 @@ def get_filter_criteria(data: List[Dict[str, Any]]) -> Dict[str, Any]:
             if k != "oper":
                 criteria.update({k: v})
     return criteria
+
+
+# def get_criteria(criteria: List[Dict[str, Any]]) -> str:
+#     if len(criteria) == 1:
+#         criteria_str = f".{[k +' = +'+get_type(v)+'$'+k for k, v in criteria[0].items()][0]}"
+
+#     return criteria_str
+
+# def query_builder(*, model: str, criteria: List[Dict[str, Any]] = [], data: dict = {}) -> str:
+#     return f"""{get_query_model(model)} {'FILTER ' + get_criteria(criteria) if criteria else ''}"""
