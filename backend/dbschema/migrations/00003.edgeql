@@ -1,12 +1,16 @@
-CREATE MIGRATION m1tclsk6pfsluokp47i5dwmxfocvnrrqykqstl5sxbyvmie2hq3o3a
-    ONTO m1qn3yyfnml2yz5gcojj3r5b5rigzoeppnr3axiyvpme2dto6bkrgq
+CREATE MIGRATION m1lpawfu4huyrnftgvt3fmi2lmd64ppbeqpkng44iwm3ux3aqlx4ma
+    ONTO m1myxgbqqhin764n6kil36k35hsnd6nmrbjn7mwkvqcg4wy3c7tipq
 {
   ALTER TYPE inventory::Desktop {
-      CREATE INDEX ON (__subject__.hostname);
-      CREATE INDEX ON (__subject__.ip);
+      DROP LINK interface;
+  };
+  ALTER TYPE inventory::Interface {
+      CREATE LINK desktop -> inventory::Desktop;
+  };
+  ALTER TYPE inventory::Interface {
+      DROP PROPERTY connected;
   };
   ALTER TYPE inventory::NetworkDevice {
-      CREATE INDEX ON (__subject__.nodeid);
-      CREATE INDEX ON (__subject__.ip);
+      CREATE PROPERTY model -> std::str;
   };
 };

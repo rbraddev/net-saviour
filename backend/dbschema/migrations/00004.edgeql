@@ -1,14 +1,7 @@
-CREATE MIGRATION m17qscwosafjmomqeojbt5xb4sgve2udhwl7gev5oenia3phjrgkca
-    ONTO m1tclsk6pfsluokp47i5dwmxfocvnrrqykqstl5sxbyvmie2hq3o3a
+CREATE MIGRATION m1i5d4nwls62nk5oge2wk26zofbi7phylzxqp6b46m2ftgh4oe2ojq
+    ONTO m1lpawfu4huyrnftgvt3fmi2lmd64ppbeqpkng44iwm3ux3aqlx4ma
 {
-  ALTER TYPE inventory::Desktop {
-      CREATE REQUIRED PROPERTY mac -> std::str {
-          SET REQUIRED USING ('xxxxxxxxxxxx');
-          CREATE CONSTRAINT std::exclusive;
-      };
-      CREATE INDEX ON (__subject__.mac);
-  };
-  ALTER TYPE inventory::NetworkDevice {
-      CREATE PROPERTY site -> std::str;
+  ALTER TYPE inventory::Interface {
+      CREATE PROPERTY subnet -> std::int16;
   };
 };

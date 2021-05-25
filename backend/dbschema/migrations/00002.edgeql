@@ -1,9 +1,9 @@
-CREATE MIGRATION m1qn3yyfnml2yz5gcojj3r5b5rigzoeppnr3axiyvpme2dto6bkrgq
-    ONTO m1cavgnegroiozc5lvsixauiduwqxv4x5pfq7gpc3wp6uixjibo3aq
+CREATE MIGRATION m1myxgbqqhin764n6kil36k35hsnd6nmrbjn7mwkvqcg4wy3c7tipq
+    ONTO m1tauy2iukzeawjajaovg3exk4riiuv7sokljxteq6botkx4kdxm3a
 {
-  ALTER TYPE inventory::NetworkDevice {
-      CREATE REQUIRED PROPERTY active -> std::bool {
-          SET default := true;
+  ALTER TYPE inventory::Interface {
+      ALTER PROPERTY macs {
+          RENAME TO connected;
       };
   };
 };

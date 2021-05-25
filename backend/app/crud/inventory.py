@@ -1,4 +1,5 @@
 from typing import List, Dict, Any, Union
+import json
 
 from edgedb import BlockingIOConnection, AsyncIOConnection
 from edgedb.errors import NoDataError, ConstraintViolationError
@@ -130,4 +131,4 @@ async def am_get(
         )
     except NoDataError:
         return None
-    return result
+    return json.loads(result)
