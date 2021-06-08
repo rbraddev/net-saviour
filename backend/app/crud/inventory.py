@@ -139,12 +139,22 @@ async def asearch(con: AsyncIOConnection, *, search_string: str) -> Union[list, 
     result = []
     try:
         r = await con.query_json(
-            f"""WITH MODULE inventory SELECT NetworkDevice {{
+            f"""WITH MODULE inventory
+                SELECT NetworkDevice {{
                 id,
                 nodeid,
                 ip,
-                hostname
-            }} FILTER .ip like '%{search_string}%' or .hostname like '%{search_string}%'"""
+                hostname,
+                interfaces : {{
+                    name,
+                    ip,
+                    mac,
+                    desktop: {{
+                        hostname,
+                        ip
+                    }}
+                }}
+            }} FILTER .ip ilike '%{search_string}%' or .hostname ilike '%{search_string}%'"""
         )
     except NoDataError:
         pass
@@ -155,31 +165,56 @@ async def asearch(con: AsyncIOConnection, *, search_string: str) -> Union[list, 
    
     try:
         r = await con.query_json(
-            f"""WITH MODULE inventory SELECT Desktop {{
-                id,
-                ip,
-                mac,
-                hostname,
-                switch := (
-                    SELECT NetworkDevice {{
-                        hostname,
-                        nodeid,
-                        ip
-                    }} FILTER .interfaces.desktop.ip like '%{search_string}%' or .interfaces.desktop.hostname like '%{search_string}%'
-                ),
-                interface := (
-                    SELECT Interface {{
-                        name
-                    }} FILTER .desktop.ip like '%{search_string}%' or .desktop.hostname like '%{search_string}%'
-                )
-            }}
-            FILTER .ip like '%{search_string}%' or .hostname like '%{search_string}%'"""
-        )
+            f"""WITH MODULE inventory 
+                SELECT Desktop {{
+                    id,
+                    ip,
+                    mac,
+                    hostname,
+                    switch := (
+                        SELECT NetworkDevice {{
+                            hostname,
+                            nodeid,
+                            ip
+                        }} FILTER .interfaces.desktop.ip like '%{search_string}%' or .interfaces.desktop.hostname like '%{search_string}%'
+                    ),
+                    interface := (
+                        SELECT Interface {{
+                            name
+                        }} FILTER .desktop.ip like '%{search_string}%' or .desktop.hostname like '%{search_string}%'
+                    )
+                }}
+                FILTER .ip ilike '%{search_string}%' or .hostname ilike '%{search_string}%' or .mac like '%{search_string}%'"""
+            )
     except NoDataError:
         pass
     else:
         r = json.loads(r)
         for device in r:
             result.append(device)
+
+    # try:
+    r = await con.query_json(
+        f"""WITH MODULE inventory
+            SELECT Interface {{
+                switch := (
+                    SELECT Interface.<interfaces[IS NetworkDevice] {{
+                        hostname
+                    }}
+                ),
+                name,
+                ip,
+                desktop : {{
+                    hostname,
+                    ip
+                }}
+        }} FILTER .ip like '%{search_string}%' or .mac like '%{search_string}%'"""
+    )
+    # except NoDataError:
+    #     pass
+    # else:   
+    #     r = json.loads(r)
+    #     for device in r:
+    #         result.append(device)
     return result
     

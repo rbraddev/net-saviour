@@ -13,6 +13,7 @@ class Device(BaseModel):
 
 class Network(Device):
     nodeid: int
+    interfaces: List[Dict[str,str]]
 
 
 class Desktop(Device):

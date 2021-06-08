@@ -29,10 +29,10 @@ async def get_network_devices(
     return devices
 
 
-@router.get("/search", response_model=List[Union[Network, Desktop]])
+@router.get("/search")
 async def search_network_devices(
-    search_string: str,
+    q: str,
     con: AsyncIOConnection = Depends(get_acon),
 ):
-    devices = await inventory.asearch(con, search_string=search_string)
+    devices = await inventory.asearch(con, search_string=q)
     return devices

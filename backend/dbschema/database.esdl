@@ -37,9 +37,12 @@ module inventory{
         };
         required property name -> str;
         property description -> str;
-        property ip -> util::IP;
+        property ip -> util::IP {
+            constraint exclusive;
+        };
         property subnet -> int16;
         link desktop -> Desktop;
         index on (__subject__.mac);
+        index on (__subject__.ip);
     }
 };
