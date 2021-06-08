@@ -63,7 +63,7 @@ def m_get(
     try:
         result = con.query_json(
             f"""SELECT inventory::{node_type} {'{'+','.join(fields)+'}'}
-            {'FILTER .'+ get_filter_str(filter_criteria) if filter_criteria else ''}""",
+            {'FILTER '+ get_filter_str(filter_criteria) if filter_criteria else ''}""",
             **get_filter_criteria(filter_criteria),
         )
     except NoDataError:
@@ -121,14 +121,65 @@ async def am_get(
     *,
     node_type: str,
     filter_criteria: List[Dict[str, Any]] = [],
-    fields: list = ["ip", "hostname"],
-) -> Union[str, None]:
+    fields: list = [],
+) -> Union[list, None]:
+    if not fields: fields = ["id", "nodeid", "ip", "hostname"]
     try:
         result = await con.query_json(
-            f"""SELECT inventory::{node_type} {'{'+','.join(fields)+'}'}
-            {'FILTER .'+ get_filter_str(filter_criteria) if filter_criteria else ''}""",
+            f"""WITH MODULE inventory SELECT {node_type} {'{'+','.join(fields)+'}'}
+            {'FILTER '+ get_filter_str(filter_criteria) if filter_criteria else ''}""",
             **get_filter_criteria(filter_criteria),
         )
     except NoDataError:
         return None
     return json.loads(result)
+
+
+async def asearch(con: AsyncIOConnection, *, search_string: str) -> Union[list, None]:
+    result = []
+    try:
+        r = await con.query_json(
+            f"""WITH MODULE inventory SELECT NetworkDevice {{
+                id,
+                nodeid,
+                ip,
+                hostname
+            }} FILTER .ip like '%{search_string}%' or .hostname like '%{search_string}%'"""
+        )
+    except NoDataError:
+        pass
+    else:
+        r = json.loads(r)
+        for device in r:
+            result.append(device)    
+   
+    try:
+        r = await con.query_json(
+            f"""WITH MODULE inventory SELECT Desktop {{
+                id,
+                ip,
+                mac,
+                hostname,
+                switch := (
+                    SELECT NetworkDevice {{
+                        hostname,
+                        nodeid,
+                        ip
+                    }} FILTER .interfaces.desktop.ip like '%{search_string}%' or .interfaces.desktop.hostname like '%{search_string}%'
+                ),
+                interface := (
+                    SELECT Interface {{
+                        name
+                    }} FILTER .desktop.ip like '%{search_string}%' or .desktop.hostname like '%{search_string}%'
+                )
+            }}
+            FILTER .ip like '%{search_string}%' or .hostname like '%{search_string}%'"""
+        )
+    except NoDataError:
+        pass
+    else:
+        r = json.loads(r)
+        for device in r:
+            result.append(device)
+    return result
+    

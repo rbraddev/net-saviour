@@ -1,3 +1,4 @@
+from typing import List, Dict
 from uuid import UUID
 from ipaddress import IPv4Address
 
@@ -16,3 +17,5 @@ class Network(Device):
 
 class Desktop(Device):
     mac: str
+    switch: List[Dict[str,str]]
+    interface: List[Dict[str,str]]

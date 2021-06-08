@@ -10,6 +10,8 @@ def get_type(value: Any) -> str:
         return "<str>"
     elif type(value) == int:
         return "<int64>"
+    elif type(value) == set:
+        return "<set>"
     else:
         raise ValueError("Type not found.")
 
@@ -23,11 +25,12 @@ def get_query(data: Dict[str, Any]) -> str:
 def get_filter_str(data: List[Dict[str, Any]]) -> str:
     filter_string = ""
     for item in data:
-        for k, v in item.items():
-            if k == "oper":
-                filter_string += f" {v} "
+        for k in item.keys():
+            if k in ["site", "hostname", "ip"]:
+                filter_string += f"{' and ' if filter_string else ''}.{k} in array_unpack(<array<str>>${k})"
             else:
-                filter_string += f"{k} = {get_type(v)}${k}"
+                raise KeyError(f"{k} is an invalid key")
+    print(f"filter string: {filter_string}")         
     return filter_string
 
 
@@ -35,8 +38,8 @@ def get_filter_criteria(data: List[Dict[str, Any]]) -> Dict[str, Any]:
     criteria = {}
     for d in data:
         for k, v in d.items():
-            if k != "oper":
-                criteria.update({k: v})
+            criteria.update({k: v})
+    print(f"filter criteria: {criteria}")
     return criteria
 
 
