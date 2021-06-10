@@ -25,12 +25,16 @@ def get_query(data: Dict[str, Any]) -> str:
 def get_filter_str(data: List[Dict[str, Any]]) -> str:
     filter_string = ""
     for item in data:
-        for k in item.keys():
-            if k in ["site", "hostname", "ip"]:
-                filter_string += f"{' and ' if filter_string else ''}.{k} in array_unpack(<array<str>>${k})"
+        for k, v in item.items():
+            if k in ["site", "hostname", "ip", "nodeid"]:
+                if type(v) == list:
+                    filter_string += (
+                        f"{' and ' if filter_string else ''}.{k} in array_unpack(<array{get_type(v[0])}>${k})"
+                    )
+                else:
+                    filter_string += f"{' and ' if filter_string else ''}.{k} = {get_type(v)}${k}"
             else:
                 raise KeyError(f"{k} is an invalid key")
-    print(f"filter string: {filter_string}")         
     return filter_string
 
 
@@ -39,7 +43,6 @@ def get_filter_criteria(data: List[Dict[str, Any]]) -> Dict[str, Any]:
     for d in data:
         for k, v in d.items():
             criteria.update({k: v})
-    print(f"filter criteria: {criteria}")
     return criteria
 
 

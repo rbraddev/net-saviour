@@ -4,6 +4,7 @@ import json
 from edgedb import BlockingIOConnection, AsyncIOConnection
 from edgedb.errors import NoDataError, ConstraintViolationError
 
+from app.models.edge.inventory import get_shape
 from app.core.utils import get_filter_str, get_filter_criteria, get_query
 
 
@@ -40,12 +41,13 @@ def get(
     *,
     node_type: str,
     filter_criteria: List[Dict[str, Any]],
-    fields: list = ["ip", "hostname"],
+    shape: str = "basic",
 ) -> Union[str, None]:
     try:
         result = con.query_one_json(
-            f"""SELECT inventory::{node_type} {'{'+','.join(fields)+'}'}
-            FILTER .{get_filter_str(filter_criteria)}""",
+            f"""WITH MODULE inventory
+            SELECT {node_type} {get_shape(node_type, shape)}
+            FILTER {get_filter_str(filter_criteria)}""",
             **get_filter_criteria(filter_criteria),
         )
     except NoDataError:
@@ -58,11 +60,12 @@ def m_get(
     *,
     node_type: str,
     filter_criteria: List[Dict[str, Any]] = [],
-    fields: list = ["ip", "hostname"],
+    shape: str = "basic",
 ) -> Union[str, None]:
     try:
         result = con.query_json(
-            f"""SELECT inventory::{node_type} {'{'+','.join(fields)+'}'}
+            f"""WITH MODULE inventory
+            SELECT {node_type} {get_shape(node_type, shape)}
             {'FILTER '+ get_filter_str(filter_criteria) if filter_criteria else ''}""",
             **get_filter_criteria(filter_criteria),
         )
@@ -85,7 +88,7 @@ async def acreate(con: AsyncIOConnection, *, node_type: str, data: dict) -> Unio
     return result
 
 
-async def update(con: AsyncIOConnection, *, node_type: str, data: dict) -> Union[str, None]:
+async def aupdate(con: AsyncIOConnection, *, node_type: str, data: dict) -> Union[str, None]:
     try:
         result = await con.query(
             f"""UPDATE inventory::{node_type} FILTER {'.nodeid = <int64>$nodeid' if node_type == 'NetworkDevice' else '.hostname = <str>$hostname'}
@@ -103,11 +106,11 @@ async def aget(
     *,
     node_type: str,
     filter_criteria: List[Dict[str, Any]],
-    fields: list = ["ip", "hostname"],
+    shape: str = "basic",
 ) -> Union[str, None]:
     try:
         result = await con.query_one_json(
-            f"""SELECT inventory::{node_type} {'{'+','.join(fields)+'}'}
+            f"""SELECT inventory::{node_type} {get_shape(node_type, shape)}
             FILTER .{get_filter_str(filter_criteria)}""",
             **get_filter_criteria(filter_criteria),
         )
@@ -121,12 +124,12 @@ async def am_get(
     *,
     node_type: str,
     filter_criteria: List[Dict[str, Any]] = [],
-    fields: list = [],
+    shape: str = "basic",
 ) -> Union[list, None]:
-    if not fields: fields = ["id", "nodeid", "ip", "hostname"]
     try:
         result = await con.query_json(
-            f"""WITH MODULE inventory SELECT {node_type} {'{'+','.join(fields)+'}'}
+            f"""WITH MODULE inventory
+            SELECT {node_type} {get_shape(node_type, shape)}
             {'FILTER '+ get_filter_str(filter_criteria) if filter_criteria else ''}""",
             **get_filter_criteria(filter_criteria),
         )

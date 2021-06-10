@@ -1,22 +1,20 @@
 from typing import List, Dict
-from uuid import UUID
 from ipaddress import IPv4Address
 
 from pydantic import BaseModel
 
 
 class Device(BaseModel):
-    id: UUID
     hostname: str
     ip: IPv4Address
-
-
-class Network(Device):
     nodeid: int
-    interfaces: List[Dict[str,str]]
-
-
+    
 class Desktop(Device):
     mac: str
-    switch: List[Dict[str,str]]
-    interface: List[Dict[str,str]]
+    switch: List[Dict[str, str]]
+    interface: List[Dict[str, str]]
+
+
+class NetworkExtended(Device):
+    interfaces: List[Dict[str, str]]
+

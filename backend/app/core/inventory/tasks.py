@@ -1,40 +1,73 @@
 import json
-from collections import namedtuple
+import re
 
 from celery import Celery
 from edgedb import BlockingIOConnection
+from deepdiff import DeepDiff
 
 from app import db
-from app.crud import inventory
-from app.core.inventory.utils import pull_sw_inventory, get_site
+from app.crud import inventory as inv
+from app.core.inventory.utils import pull_network_inventory, pull_desktop_inventory, get_site
 
 
-def update_inventory() -> None:
-    sw_inventory = pull_sw_inventory()
+inventory_dict = {
+    "network": {
+        "inventory": pull_network_inventory,
+        "keys": ["nodeid", "ip", "hostname", "active"],
+        "node_type": "NetworkDevice",
+    },
+    "desktop": {
+        "inventory": pull_desktop_inventory,
+        "keys": ["nodeid", "ip", "cidr", "mac", "hostname", "active"],
+        "node_type": "Desktop",
+    },
+}
+
+
+def update_inventory(inventory_type: str) -> None:
+    if inventory_type not in ["network", "desktop"]:
+        raise ValueError("Inventory must be of type 'network' or 'desktop'")
+
+    inventory: dict = inventory_dict.get(inventory_type)
+
+    sw_inventory: list = inventory["inventory"]()
 
     con: BlockingIOConnection = db.get_con()
-    db_inventory = json.loads(inventory.m_get(con, node_type="NetworkDevice", fields=["nodeid", "ip", "hostname"]))
+    db_inventory: list = json.loads(inv.m_get(con, node_type=inventory["node_type"], shape="basic"))
 
-    if sw_inventory:
-        Device = namedtuple("Device", "nodeid ip hostname")
-        sw_ids = {Device(i["nodeid"], i["ipaddress"], i["nodename"]) for i in sw_inventory}
-        db_ids = {Device(i["nodeid"], i["ip"], i["hostname"]) for i in db_inventory} if db_inventory else set()
+    diff = DeepDiff(db_inventory, sw_inventory, view="tree", ignore_order=True)
 
-        if sw_ids.difference(db_ids) or db_ids.difference(sw_ids):
-            for device in sw_ids.difference(db_ids):
-                if inventory.get(con, node_type="NetworkDevice", filter_criteria=[{"nodeid": device.nodeid}]):
-                    print(f"updating {device.nodeid}")
-                    inventory.update(con, node_type="NetworkDevice", data=device._asdict())
-                    print(f"updated {device.nodeid}")
-                else:
-                    print(f"adding {device.nodeid}")
-                    device_data = device._asdict()
-                    device_data.update({"site": get_site(device.hostname)})
-                    inventory.create(con, node_type="NetworkDevice", data=device_data)
-                    print(f"added {device.nodeid}")
+    print(diff)
 
-            for device in db_ids.difference(sw_ids):
-                print(f"Deactivating {device.nodeid}")
-                inventory.update(con, node_type="NetworkDevice", data={"nodeid": device.nodeid, "active": False})
-        else:
-            print("Inventory already up tp date")
+    if diff:
+        if "iterable_item_added" in diff.keys():
+            for item in diff["iterable_item_added"]:
+                device: dict = item.t2
+                print(f"adding {device['nodeid']}")
+                device.update({"site": get_site(device["hostname"])})
+                inv.create(con, node_type=inventory["node_type"], data=device)
+                print(f"added {device['nodeid']}")
+
+        if "values_changed" in diff.keys():
+            devices_to_update: dict = dict()
+            for item in diff["values_changed"]:
+                rx = re.match('^\D+(\d)\W+(\w+).*$', item.path())
+                device = db_inventory[int(rx[1])]
+                device.update({rx[2]: item.t2})
+                devices_to_update.update({rx[1]: device})
+            
+            for _, device in devices_to_update.items():
+                print(f"updating {device['nodeid']}")
+                inv.update(con, node_type=inventory["node_type"], data=device)
+                print(f"updated {device['nodeid']}")
+
+        if "iterable_item_removed" in diff.keys():
+            for item in diff["iterable_item_removed"]:
+                device = item.t1
+
+                print(f"Deactivating {device['nodeid']}")
+                inv.update(con, node_type=inventory["node_type"], data={"nodeid": device["nodeid"], "active": False})
+                print(f"Deactivated {device['nodeid']}")
+
+    else:
+        print("Inventory already up to date")

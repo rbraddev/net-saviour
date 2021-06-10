@@ -1,19 +1,22 @@
-shape_model = {
-    "network_get": """inventory::NetworkDevice {
-        nodeid := <int64>$nodeid,
-        hostname := <str>$hostname,
-        ip := <str>$ip,
-    }""",
-    "Desktop": """
-        hostname := <str>$hostname, 
-        ip := <str>$ip,
-        switch := (
-            SELECT inventory::NetworkDevice 
-            FILTER .nodeid = <int64>$nodeid
-        ), switch_port := <str>$switch_port
-        """,
+shapes = {
+    "NetworkDevice": {
+        "basic": """{
+            nodeid,
+            hostname,
+            ip,
+            active,
+        }""",
+    },
+    "Desktop": {
+        "basic": """{
+            nodeid,
+            hostname,
+            ip,
+            cidr,
+            mac
+        }""",
+    }
 }
 
-
-def get_shape(shape: str) -> str:
-    return shape_model.get(shape)
+def get_shape(node_type: str, shape: str) -> str:
+    return shapes[node_type].get(shape)

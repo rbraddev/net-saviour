@@ -6,26 +6,28 @@ from edgedb import AsyncIOConnection
 from app.config import get_settings, Settings
 from app.db import get_acon
 from app.crud import inventory
-from app.models.pydantic.inventory import Network, Desktop
+from app.models.pydantic.inventory import Device, Desktop
 
 router = APIRouter()
 
 
-@router.get("/network", response_model=List[Network])
+@router.get("/network", response_model=List[Device])
 async def get_network_devices(
     con: AsyncIOConnection = Depends(get_acon),
     site: str = None,
     ip: str = None,
     hostname: str = None,
-    fields: str = None
+    shape: str = "basic",
 ):
     filter_criteria = []
-    if site: filter_criteria.append({'site': site.split(',')})
-    if ip: filter_criteria.append({'ip': ip.split(',')})
-    if hostname: filter_criteria.append({'hostname': hostname.split(',')})
-    if fields: fields = fields.split(',')
+    if site:
+        filter_criteria.append({"site": site.split(",")})
+    if ip:
+        filter_criteria.append({"ip": ip.split(",")})
+    if hostname:
+        filter_criteria.append({"hostname": hostname.split(",")})
 
-    devices = await inventory.am_get(con, node_type="NetworkDevice", filter_criteria=filter_criteria, fields=fields)
+    devices = await inventory.am_get(con, node_type="NetworkDevice", filter_criteria=filter_criteria, shape=shape)
     return devices
 
 
