@@ -31,6 +31,25 @@ async def get_network_devices(
     return devices
 
 
+@router.get("/desktop", response_model=List[Device])
+async def get_network_devices(
+    con: AsyncIOConnection = Depends(get_acon),
+    site: str = None,
+    ip: str = None,
+    hostname: str = None,
+    shape: str = "basic",
+):
+    filter_criteria = []
+    if site:
+        filter_criteria.append({"site": site.split(",")})
+    if ip:
+        filter_criteria.append({"ip": ip.split(",")})
+    if hostname:
+        filter_criteria.append({"hostname": hostname.split(",")})
+
+    devices = await inventory.am_get(con, node_type="Desktop", filter_criteria=filter_criteria, shape=shape)
+    return devices
+
 @router.get("/search")
 async def search_network_devices(
     q: str,

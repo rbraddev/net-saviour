@@ -37,16 +37,17 @@ def update_inventory(inventory_type: str) -> None:
 
     diff = DeepDiff(db_inventory, sw_inventory, view="tree", ignore_order=True)
 
-    print(diff)
-
     if diff:
         if "iterable_item_added" in diff.keys():
             for item in diff["iterable_item_added"]:
                 device: dict = item.t2
                 print(f"adding {device['nodeid']}")
                 device.update({"site": get_site(device["hostname"])})
-                inv.create(con, node_type=inventory["node_type"], data=device)
-                print(f"added {device['nodeid']}")
+                result = inv.create(con, node_type=inventory["node_type"], data=device)
+                if result:
+                    print(f"added {device['nodeid']}")
+                else:
+                    print(f"Error adding node {device['nodeid']}")
 
         if "values_changed" in diff.keys():
             devices_to_update: dict = dict()

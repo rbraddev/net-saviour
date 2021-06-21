@@ -39,16 +39,18 @@ def pull_network_inventory() -> List[Dict[str, Any]]:
     # results = query_sw(query, parameters)
 
     results = [
-        {"nodeid": 1233, "ip": "10.1.1.1", "hostname": "SWITCH1111"},
-        {"nodeid": 1243, "ip": "10.1.1.2", "hostname": "SWITCH222"},
-        {"nodeid": 1253, "ip": "10.1.11.3", "hostname": "SWITCH333"},
-        {"nodeid": 1263, "ip": "10.11.1.4", "hostname": "SWITCH444"},
-        {"nodeid": 1273, "ip": "10.1.1.5", "hostname": "SWITCH111"},
-        {"nodeid": 12334, "ip": "10.1.1.14", "hostname": "SWITCH4444"},
-        {"nodeid": 12434, "ip": "10.1.1.24", "hostname": "SWITCH1114"},
-        {"nodeid": 12534, "ip": "10.1.1.34", "hostname": "SWITCH3333"},
-        {"nodeid": 12634, "ip": "10.1.1.44", "hostname": "SWITCH1118"},
-        {"nodeid": 12734, "ip": "10.1.1.54", "hostname": "SWITCH45"},
+        {"nodeid": 1, "ip": "10.0.0.1", "hostname": "RT1001"},
+        {"nodeid": 2, "ip": "10.0.0.2", "hostname": "RT1002"},
+        {"nodeid": 3, "ip": "10.0.0.3", "hostname": "RT2001"},
+        {"nodeid": 4, "ip": "10.0.0.4", "hostname": "RT2002"},
+        {"nodeid": 5, "ip": "10.0.0.5", "hostname": "RT1011"},
+        {"nodeid": 6, "ip": "10.0.0.6", "hostname": "RT1021"},
+        {"nodeid": 7, "ip": "10.0.0.7", "hostname": "RT1031"},
+        {"nodeid": 8, "ip": "10.0.0.8", "hostname": "SW1011"},
+        {"nodeid": 9, "ip": "10.0.0.9", "hostname": "SW1021"},
+        {"nodeid": 10, "ip": "10.0.0.10", "hostname": "SW1031"},
+        {"nodeid": 11, "ip": "10.0.0.11", "hostname": "NX1001"},
+        {"nodeid": 12, "ip": "10.0.0.12", "hostname": "NX2001"},
     ]
 
     for r in results:
@@ -67,16 +69,12 @@ def pull_desktop_inventory() -> List[Dict[str, Any]]:
     # results = query_sw(query, parameters)
 
     results = [
-        {"nodeid": 1, "ip": "10.0.1.1", "cidr": 24, "mac": "11-11-11-11-AA-A1", "hostname": "desktop00101.lab.com"},
-        {"nodeid": 2, "ip": "10.0.1.2", "cidr": 24, "mac": "11-11-11-11-AA-A2", "hostname": "laptop00102.lab.com"},
-        {"nodeid": 3, "ip": "10.0.1.3", "cidr": 24, "mac": "11-11-11-11-AA-A3", "hostname": "desktop00103.lab.com"},
-        {"nodeid": 4, "ip": "10.0.1.4", "cidr": 24, "mac": "11-11-11-11-AA-A4", "hostname": "desktop00104.lab.com"},
-        {"nodeid": 5, "ip": "10.0.1.5", "cidr": 24, "mac": "11-11-11-11-AA-A5", "hostname": "desktop00105.lab.com"},
-        {"nodeid": 6, "ip": "10.0.2.1", "cidr": 24, "mac": "11-11-11-11-AA-B1", "hostname": "desktop00201.lab.com"},
-        {"nodeid": 7, "ip": "10.0.2.2", "cidr": 24, "mac": "11-11-11-11-AA-B2", "hostname": "desktop00202.lab.com"},
-        {"nodeid": 8, "ip": "10.0.2.3", "cidr": 24, "mac": "11-11-11-11-AA-B3", "hostname": "desktop00203.lab.com"},
-        {"nodeid": 9, "ip": "10.0.2.4", "cidr": 24, "mac": "11-11-11-11-AA-B4", "hostname": "laptop00204.lab.com"},
-        {"nodeid": 10, "ip": "10.0.2.5", "cidr": 24, "mac": "11-11-11-11-AA-B5", "hostname": "desktop00205.lab.com"},
+        {"nodeid": 1, "ip": "10.101.10.1", "cidr": 24, "mac": "52-54-00-0A-BB-9D", "hostname": "PC1011.lab.local"},
+        {"nodeid": 2, "ip": "10.101.10.2", "cidr": 24, "mac": "52-54-00-0D-02-EB", "hostname": "PC1012.lab.local"},
+        {"nodeid": 3, "ip": "10.102.10.1", "cidr": 24, "mac": "52-54-00-03-66-DE", "hostname": "PC1021.lab.local"},
+        {"nodeid": 4, "ip": "10.102.10.2", "cidr": 24, "mac": "52-54-00-14-94-BB", "hostname": "PC1022.lab.local"},
+        {"nodeid": 5, "ip": "10.103.10.1", "cidr": 24, "mac": "52-54-00-06-25-67", "hostname": "PC1031.lab.local"},
+
     ]
 
     if results:
