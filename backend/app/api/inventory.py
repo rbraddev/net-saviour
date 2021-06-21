@@ -50,6 +50,7 @@ async def get_network_devices(
     devices = await inventory.am_get(con, node_type="Desktop", filter_criteria=filter_criteria, shape=shape)
     return devices
 
+
 @router.get("/search")
 async def search_network_devices(
     q: str,

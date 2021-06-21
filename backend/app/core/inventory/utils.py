@@ -74,7 +74,6 @@ def pull_desktop_inventory() -> List[Dict[str, Any]]:
         {"nodeid": 3, "ip": "10.102.10.1", "cidr": 24, "mac": "52-54-00-03-66-DE", "hostname": "PC1021.lab.local"},
         {"nodeid": 4, "ip": "10.102.10.2", "cidr": 24, "mac": "52-54-00-14-94-BB", "hostname": "PC1022.lab.local"},
         {"nodeid": 5, "ip": "10.103.10.1", "cidr": 24, "mac": "52-54-00-06-25-67", "hostname": "PC1031.lab.local"},
-
     ]
 
     if results:

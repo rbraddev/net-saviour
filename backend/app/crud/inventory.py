@@ -164,8 +164,8 @@ async def asearch(con: AsyncIOConnection, *, search_string: str) -> Union[list, 
     else:
         r = json.loads(r)
         for device in r:
-            result.append(device)    
-   
+            result.append(device)
+
     try:
         r = await con.query_json(
             f"""WITH MODULE inventory 
@@ -188,7 +188,7 @@ async def asearch(con: AsyncIOConnection, *, search_string: str) -> Union[list, 
                     )
                 }}
                 FILTER .ip ilike '%{search_string}%' or .hostname ilike '%{search_string}%' or .mac like '%{search_string}%'"""
-            )
+        )
     except NoDataError:
         pass
     else:
@@ -215,9 +215,8 @@ async def asearch(con: AsyncIOConnection, *, search_string: str) -> Union[list, 
     )
     # except NoDataError:
     #     pass
-    # else:   
+    # else:
     #     r = json.loads(r)
     #     for device in r:
     #         result.append(device)
     return result
-    

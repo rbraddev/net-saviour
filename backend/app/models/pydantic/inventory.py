@@ -8,7 +8,8 @@ class Device(BaseModel):
     hostname: str
     ip: IPv4Address
     nodeid: int
-    
+
+
 class Desktop(Device):
     mac: str
     switch: List[Dict[str, str]]
@@ -17,4 +18,3 @@ class Desktop(Device):
 
 class NetworkExtended(Device):
     interfaces: List[Dict[str, str]]
-

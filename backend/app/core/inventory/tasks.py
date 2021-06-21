@@ -52,11 +52,11 @@ def update_inventory(inventory_type: str) -> None:
         if "values_changed" in diff.keys():
             devices_to_update: dict = dict()
             for item in diff["values_changed"]:
-                rx = re.match('^\D+(\d)\W+(\w+).*$', item.path())
+                rx = re.match("^\D+(\d)\W+(\w+).*$", item.path())
                 device = db_inventory[int(rx[1])]
                 device.update({rx[2]: item.t2})
                 devices_to_update.update({rx[1]: device})
-            
+
             for _, device in devices_to_update.items():
                 print(f"updating {device['nodeid']}")
                 inv.update(con, node_type=inventory["node_type"], data=device)
