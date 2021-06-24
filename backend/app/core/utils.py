@@ -26,7 +26,7 @@ def get_filter_str(data: List[Dict[str, Any]]) -> str:
     filter_string = ""
     for item in data:
         for k, v in item.items():
-            if k in ["site", "hostname", "ip", "nodeid"]:
+            if k in ["site", "hostname", "ip", "nodeid", "platform", "active"]:
                 if type(v) == list:
                     filter_string += (
                         f"{' and ' if filter_string else ''}.{k} in array_unpack(<array{get_type(v[0])}>${k})"

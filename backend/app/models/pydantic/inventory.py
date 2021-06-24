@@ -8,6 +8,7 @@ class Device(BaseModel):
     hostname: str
     ip: IPv4Address
     nodeid: int
+    platform: str
 
 
 class Desktop(Device):

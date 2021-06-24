@@ -8,6 +8,12 @@ from app.config import Settings, get_settings
 settings: Settings = get_settings()
 
 
+platform = {
+    "rt": "router",
+    "sw": "switch",
+    "nx": "nexus"
+}
+
 def query_sw(query: str, parameters: dict) -> List[Dict[str, Any]]:
     headers = {"Content-Type": "application/json"}
     data = {
@@ -54,7 +60,10 @@ def pull_network_inventory() -> List[Dict[str, Any]]:
     ]
 
     for r in results:
-        r.update({"active": True})
+        r.update({
+            "active": True,
+            "platform": platform.get(r["hostname"][:2].lower(), "undefined")
+        })
 
     return results
 

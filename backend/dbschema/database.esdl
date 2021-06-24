@@ -18,6 +18,7 @@ module inventory{
         required property nodeid -> int64 {
             constraint exclusive;
         };
+        property platform -> str;
         property model -> str;
         property image -> str;
         multi link interfaces -> Interface;

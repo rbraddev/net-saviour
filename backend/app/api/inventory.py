@@ -17,6 +17,8 @@ async def get_network_devices(
     site: str = None,
     ip: str = None,
     hostname: str = None,
+    platform: str = None,
+    active: bool = True,
     shape: str = "basic",
 ):
     filter_criteria = []
@@ -26,6 +28,9 @@ async def get_network_devices(
         filter_criteria.append({"ip": ip.split(",")})
     if hostname:
         filter_criteria.append({"hostname": hostname.split(",")})
+    if platform:
+        filter_criteria.append({"platform": platform.split(",")})
+    filter_criteria.append({"active": active})
 
     devices = await inventory.am_get(con, node_type="NetworkDevice", filter_criteria=filter_criteria, shape=shape)
     return devices

@@ -13,7 +13,7 @@ from app.core.inventory.utils import pull_network_inventory, pull_desktop_invent
 inventory_dict = {
     "network": {
         "inventory": pull_network_inventory,
-        "keys": ["nodeid", "ip", "hostname", "active"],
+        "keys": ["nodeid", "ip", "hostname", "platform", "active"],
         "node_type": "NetworkDevice",
     },
     "desktop": {
@@ -36,8 +36,10 @@ def update_inventory(inventory_type: str) -> None:
     db_inventory: list = json.loads(inv.m_get(con, node_type=inventory["node_type"], shape="basic"))
 
     diff = DeepDiff(db_inventory, sw_inventory, view="tree", ignore_order=True)
+    print(diff)
 
     if diff:
+        print(diff.keys())
         if "iterable_item_added" in diff.keys():
             for item in diff["iterable_item_added"]:
                 device: dict = item.t2
@@ -49,23 +51,30 @@ def update_inventory(inventory_type: str) -> None:
                 else:
                     print(f"Error adding node {device['nodeid']}")
 
-        if "values_changed" in diff.keys():
-            devices_to_update: dict = dict()
+        devices_to_update: dict = dict()
+        if "values_changed"in diff.keys():
             for item in diff["values_changed"]:
-                rx = re.match("^\D+(\d)\W+(\w+).*$", item.path())
+                rx = re.match("^\D+(\d+)\W+(\w+).*$", item.path())
                 device = db_inventory[int(rx[1])]
                 device.update({rx[2]: item.t2})
-                devices_to_update.update({rx[1]: device})
-
-            for _, device in devices_to_update.items():
-                print(f"updating {device['nodeid']}")
-                inv.update(con, node_type=inventory["node_type"], data=device)
-                print(f"updated {device['nodeid']}")
+                devices_to_update.update({int(rx[1]): device})
+            
+        if "type_changes"in diff.keys():
+            for item in diff["type_changes"]:
+                rx = re.match("^\D+(\d+)\W+(\w+).*$", item.path())
+                device = db_inventory[int(rx[1])]
+                device.update({rx[2]: item.t2})
+                devices_to_update.update({int(rx[1]): device})
+            
+        for _, device in devices_to_update.items():
+            print(device)
+            print(f"updating {device['nodeid']}")
+            inv.update(con, node_type=inventory["node_type"], data=device)
+            print(f"updated {device['nodeid']}")
 
         if "iterable_item_removed" in diff.keys():
             for item in diff["iterable_item_removed"]:
                 device = item.t1
-
                 print(f"Deactivating {device['nodeid']}")
                 inv.update(con, node_type=inventory["node_type"], data={"nodeid": device["nodeid"], "active": False})
                 print(f"Deactivated {device['nodeid']}")
