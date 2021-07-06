@@ -8,11 +8,8 @@ from app.config import Settings, get_settings
 settings: Settings = get_settings()
 
 
-platform = {
-    "rt": "router",
-    "sw": "switch",
-    "nx": "nexus"
-}
+platform = {"rt": "router", "sw": "switch", "nx": "nexus"}
+
 
 async def query_sw(query: str, parameters: dict) -> List[Dict[str, Any]]:
     headers = {"Content-Type": "application/json"}
@@ -60,10 +57,7 @@ async def pull_network_inventory() -> List[Dict[str, Any]]:
     ]
 
     for r in results:
-        r.update({
-            "active": True,
-            "platform": platform.get(r["hostname"][:2].lower(), "undefined")
-        })
+        r.update({"active": True, "platform": platform.get(r["hostname"][:2].lower(), "undefined")})
 
     return results
 

@@ -13,15 +13,12 @@ edgedb = "^0.13.0"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 pyjwt = "^1.7.1"
 uvicorn = "^0.13.4"
-celery = "^4.4.7"
-redis = "^3.5.3"
-flower = "^0.9.7"
 deepdiff = "^5.5.0"
-scrapli = {extras = ["ssh2", "asyncssh"], version = "^2021.1.30"}
 unicon = "21.4"
 genie = "21.4"
 pyats = "21.4"
 net-gsd = "^0.1.0"
+scrapli = {extras = ["asyncssh"], version = "^2021.1.30"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.2"

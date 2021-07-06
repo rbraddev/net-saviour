@@ -52,20 +52,20 @@ async def update_inventory(con: AsyncIOConnection, inventory_type: str) -> None:
                     print(f"Error adding node {device['nodeid']}")
 
         devices_to_update: dict = dict()
-        if "values_changed"in diff.keys():
+        if "values_changed" in diff.keys():
             for item in diff["values_changed"]:
                 rx = re.match("^\D+(\d+)\W+(\w+).*$", item.path())
                 device = db_inventory[int(rx[1])]
                 device.update({rx[2]: item.t2})
                 devices_to_update.update({int(rx[1]): device})
-            
-        if "type_changes"in diff.keys():
+
+        if "type_changes" in diff.keys():
             for item in diff["type_changes"]:
                 rx = re.match("^\D+(\d+)\W+(\w+).*$", item.path())
                 device = db_inventory[int(rx[1])]
                 device.update({rx[2]: item.t2})
                 devices_to_update.update({int(rx[1]): device})
-            
+
         for _, device in devices_to_update.items():
             print(device)
             print(f"updating {device['nodeid']}")
@@ -76,11 +76,10 @@ async def update_inventory(con: AsyncIOConnection, inventory_type: str) -> None:
             for item in diff["iterable_item_removed"]:
                 device = item.t1
                 print(f"Deactivating {device['nodeid']}")
-                await inv.aupdate(con, node_type=inventory["node_type"], data={"nodeid": device["nodeid"], "active": False})
+                await inv.aupdate(
+                    con, node_type=inventory["node_type"], data={"nodeid": device["nodeid"], "active": False}
+                )
                 print(f"Deactivated {device['nodeid']}")
 
     else:
         print("Inventory already up to date")
-
-
-

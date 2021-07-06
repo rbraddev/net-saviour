@@ -17,6 +17,7 @@ async def start_update_task(inventory: str, con: AsyncIOConnection = Depends(get
     await update_inventory(con, inventory)
     return {"message": f"Starting {inventory} inventory update"}
 
+
 @router.get("/network", response_model=List[Device])
 async def get_network_devices(
     con: AsyncIOConnection = Depends(get_acon),
