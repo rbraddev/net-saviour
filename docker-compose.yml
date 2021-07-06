@@ -31,36 +31,6 @@ services:
   redis:
     image: redis:6-alpine
 
-  celery_worker:
-    container_name: celery_worker
-    build:
-      context: .
-      dockerfile: ./compose/local/backend/Dockerfile
-    command: /start-celeryworker.sh
-    volumes:
-      - ./backend:/usr/src/app
-    env_file:
-      - .env/.dev
-    depends_on:
-      - redis
-      - nsav-db
-
-  flower:
-    build:
-      context: .
-      dockerfile: ./compose/local/backend/Dockerfile
-    image: celey_flower
-    command: /start-flower.sh
-    volumes:
-      - ./backend:/usr/src/app
-    env_file:
-      - .env/.dev
-    ports:
-      - 5557:5555
-    depends_on:
-      - redis
-      - nsav-db
-
   tacacs:
     container_name: tacacs
     image: lfkeitel/tacacs_plus:alpine
