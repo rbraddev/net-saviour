@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONASYNCIODEBUG 1
-ENV PYTHONMALLOC 1
+ENV PYTHONTRACEMALLOC 1
 
 RUN apt-get update \
   && apt-get -y install curl netcat gcc iputils-ping \
