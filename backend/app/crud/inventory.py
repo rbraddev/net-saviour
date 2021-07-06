@@ -71,7 +71,7 @@ def m_get(
         )
     except NoDataError:
         return None
-    return result
+    return json.loads(result)
 
 
 async def acreate(con: AsyncIOConnection, *, node_type: str, data: dict) -> Union[str, None]:
@@ -90,6 +90,7 @@ async def acreate(con: AsyncIOConnection, *, node_type: str, data: dict) -> Unio
 
 async def aupdate(con: AsyncIOConnection, *, node_type: str, data: dict) -> Union[str, None]:
     try:
+        print(data)
         result = await con.query(
             f"""UPDATE inventory::{node_type} FILTER {'.nodeid = <int64>$nodeid' if node_type == 'NetworkDevice' else '.hostname = <str>$hostname'}
             SET {{{get_query(data)}}}

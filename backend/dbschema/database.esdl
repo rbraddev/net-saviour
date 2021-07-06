@@ -18,6 +18,7 @@ module inventory{
         required property nodeid -> int64 {
             constraint exclusive;
         };
+        property device_type -> str;
         property platform -> str;
         property model -> str;
         property image -> str;

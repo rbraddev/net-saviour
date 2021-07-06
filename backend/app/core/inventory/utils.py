@@ -8,7 +8,20 @@ from app.config import Settings, get_settings
 settings: Settings = get_settings()
 
 
-platform = {"rt": "router", "sw": "switch", "nx": "nexus"}
+device_info = {
+    "rt": {
+        "device_type":"router",
+        "platform": "ios"
+    },
+    "sw": {
+        "device_type": "switch", 
+        "platform": "ios"
+    },
+    "nx": {
+        "device_type":"nexus",
+        "platform": "nxos"
+    }
+}
 
 
 async def query_sw(query: str, parameters: dict) -> List[Dict[str, Any]]:
@@ -57,8 +70,8 @@ async def pull_network_inventory() -> List[Dict[str, Any]]:
     ]
 
     for r in results:
-        r.update({"active": True, "platform": platform.get(r["hostname"][:2].lower(), "undefined")})
-
+        device = device_info.get(r["hostname"][:2].lower(), "undefined")
+        r.update({"active": True, "device_type": device["device_type"], "platform": device["platform"]})
     return results
 
 

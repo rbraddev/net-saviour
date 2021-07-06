@@ -1,11 +1,8 @@
-import json
 import re
 
-from celery import Celery
 from edgedb import AsyncIOConnection
 from deepdiff import DeepDiff
 
-from app import db
 from app.crud import inventory as inv
 from app.core.inventory.utils import pull_network_inventory, pull_desktop_inventory, get_site
 
@@ -13,7 +10,7 @@ from app.core.inventory.utils import pull_network_inventory, pull_desktop_invent
 inventory_dict = {
     "network": {
         "inventory": pull_network_inventory,
-        "keys": ["nodeid", "ip", "hostname", "platform", "active"],
+        "keys": ["nodeid", "ip", "hostname", "device_type", "platform", "active"],
         "node_type": "NetworkDevice",
     },
     "desktop": {
@@ -32,14 +29,11 @@ async def update_inventory(con: AsyncIOConnection, inventory_type: str) -> None:
 
     sw_inventory: list = await inventory["inventory"]()
 
-    # con: AsyncIOConnection = db.get_acon()
-    db_inventory: list = json.loads(await inv.am_get(con, node_type=inventory["node_type"], shape="basic"))
+    db_inventory: list = await inv.am_get(con, node_type=inventory["node_type"], shape="basic")
 
     diff = DeepDiff(db_inventory, sw_inventory, view="tree", ignore_order=True)
-    print(diff)
 
     if diff:
-        print(diff.keys())
         if "iterable_item_added" in diff.keys():
             for item in diff["iterable_item_added"]:
                 device: dict = item.t2
@@ -55,6 +49,7 @@ async def update_inventory(con: AsyncIOConnection, inventory_type: str) -> None:
         if "values_changed" in diff.keys():
             for item in diff["values_changed"]:
                 rx = re.match("^\D+(\d+)\W+(\w+).*$", item.path())
+                # rx = re.match("^\D+(\d+)\D(\W+(\w+).*)*$", item.path())
                 device = db_inventory[int(rx[1])]
                 device.update({rx[2]: item.t2})
                 devices_to_update.update({int(rx[1]): device})

@@ -7,7 +7,7 @@ from app.config import get_settings, Settings
 from app.db import get_acon
 from app.core.inventory.tasks import update_inventory
 from app.crud import inventory
-from app.models.pydantic.inventory import Device, Desktop
+from app.models.pydantic.inventory import NetworkBasic, DesktopBasic
 
 router = APIRouter()
 
@@ -18,13 +18,14 @@ async def start_update_task(inventory: str, con: AsyncIOConnection = Depends(get
     return {"message": f"Starting {inventory} inventory update"}
 
 
-@router.get("/network", response_model=List[Device])
+@router.get("/network", response_model=List[NetworkBasic])
 async def get_network_devices(
     con: AsyncIOConnection = Depends(get_acon),
     site: str = None,
     ip: str = None,
     hostname: str = None,
     platform: str = None,
+    device_type: str = None,
     active: bool = True,
     shape: str = "basic",
 ):
@@ -37,13 +38,15 @@ async def get_network_devices(
         filter_criteria.append({"hostname": hostname.split(",")})
     if platform:
         filter_criteria.append({"platform": platform.split(",")})
+    if device_type:
+        filter_criteria.append({"device_type": device_type.split(",")})
     filter_criteria.append({"active": active})
 
     devices = await inventory.am_get(con, node_type="NetworkDevice", filter_criteria=filter_criteria, shape=shape)
     return devices
 
 
-@router.get("/desktop", response_model=List[Device])
+@router.get("/desktop", response_model=List[DesktopBasic])
 async def get_network_devices(
     con: AsyncIOConnection = Depends(get_acon),
     site: str = None,

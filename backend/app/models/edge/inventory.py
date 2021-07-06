@@ -4,6 +4,7 @@ shapes = {
             nodeid,
             hostname,
             ip,
+            device_type,
             platform,
             active,
         }""",
