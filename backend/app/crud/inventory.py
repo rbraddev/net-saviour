@@ -125,7 +125,7 @@ async def am_get(
     node_type: str,
     filter_criteria: List[Dict[str, Any]] = [],
     shape: str = "basic",
-) -> Union[list, None]:
+) -> Union[str, None]:
     try:
         result = await con.query_json(
             f"""WITH MODULE inventory
@@ -135,7 +135,7 @@ async def am_get(
         )
     except NoDataError:
         return None
-    return json.loads(result)
+    return result
 
 
 async def asearch(con: AsyncIOConnection, *, search_string: str) -> Union[list, None]:

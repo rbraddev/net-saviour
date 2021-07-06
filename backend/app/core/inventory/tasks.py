@@ -2,7 +2,7 @@ import json
 import re
 
 from celery import Celery
-from edgedb import BlockingIOConnection
+from edgedb import AsyncIOConnection
 from deepdiff import DeepDiff
 
 from app import db
@@ -24,16 +24,16 @@ inventory_dict = {
 }
 
 
-def update_inventory(inventory_type: str) -> None:
+async def update_inventory(con: AsyncIOConnection, inventory_type: str) -> None:
     if inventory_type not in ["network", "desktop"]:
         raise ValueError("Inventory must be of type 'network' or 'desktop'")
 
     inventory: dict = inventory_dict.get(inventory_type)
 
-    sw_inventory: list = inventory["inventory"]()
+    sw_inventory: list = await inventory["inventory"]()
 
-    con: BlockingIOConnection = db.get_con()
-    db_inventory: list = json.loads(inv.m_get(con, node_type=inventory["node_type"], shape="basic"))
+    # con: AsyncIOConnection = db.get_acon()
+    db_inventory: list = json.loads(await inv.am_get(con, node_type=inventory["node_type"], shape="basic"))
 
     diff = DeepDiff(db_inventory, sw_inventory, view="tree", ignore_order=True)
     print(diff)
@@ -45,7 +45,7 @@ def update_inventory(inventory_type: str) -> None:
                 device: dict = item.t2
                 print(f"adding {device['nodeid']}")
                 device.update({"site": get_site(device["hostname"])})
-                result = inv.create(con, node_type=inventory["node_type"], data=device)
+                result = await inv.acreate(con, node_type=inventory["node_type"], data=device)
                 if result:
                     print(f"added {device['nodeid']}")
                 else:
@@ -69,15 +69,18 @@ def update_inventory(inventory_type: str) -> None:
         for _, device in devices_to_update.items():
             print(device)
             print(f"updating {device['nodeid']}")
-            inv.update(con, node_type=inventory["node_type"], data=device)
+            await inv.aupdate(con, node_type=inventory["node_type"], data=device)
             print(f"updated {device['nodeid']}")
 
         if "iterable_item_removed" in diff.keys():
             for item in diff["iterable_item_removed"]:
                 device = item.t1
                 print(f"Deactivating {device['nodeid']}")
-                inv.update(con, node_type=inventory["node_type"], data={"nodeid": device["nodeid"], "active": False})
+                await inv.aupdate(con, node_type=inventory["node_type"], data={"nodeid": device["nodeid"], "active": False})
                 print(f"Deactivated {device['nodeid']}")
 
     else:
         print("Inventory already up to date")
+
+
+

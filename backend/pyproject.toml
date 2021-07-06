@@ -20,6 +20,8 @@ deepdiff = "^5.5.0"
 scrapli = {extras = ["ssh2", "asyncssh"], version = "^2021.1.30"}
 unicon = "21.4"
 genie = "21.4"
+pyats = "21.4"
+net-gsd = "^0.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.2"

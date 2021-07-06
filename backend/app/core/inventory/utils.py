@@ -1,7 +1,7 @@
 import re
-from typing import Union, List, Dict, Any
+from typing import *
 
-from httpx import Response, Client
+from httpx import Response, AsyncClient
 
 from app.config import Settings, get_settings
 
@@ -14,15 +14,15 @@ platform = {
     "nx": "nexus"
 }
 
-def query_sw(query: str, parameters: dict) -> List[Dict[str, Any]]:
+async def query_sw(query: str, parameters: dict) -> List[Dict[str, Any]]:
     headers = {"Content-Type": "application/json"}
     data = {
         "query": query,
         "parameters": parameters,
     }
 
-    with Client() as client:
-        response: Response = client.get(
+    with AsyncClient() as client:
+        response: Response = await client.get(
             f"https://{{settings.SW_HOST}}:17778/SolarWinds/InformationService/v3/Json/Query",
             headers=headers,
             auth=(settings.SW_USER, settings.SW_PASSWORD),
@@ -36,13 +36,13 @@ def query_sw(query: str, parameters: dict) -> List[Dict[str, Any]]:
     return response["results"]
 
 
-def pull_network_inventory() -> List[Dict[str, Any]]:
+async def pull_network_inventory() -> List[Dict[str, Any]]:
     query = """SELECT NodeID as nodeid, IPAddress as ip, NodeName as hostname 
                 FROM Orion.Nodes 
                 WHERE NodeName LIKE @s OR NodeName LIKE @r OR NodeName LIKE @n"""
     parameters = {"s": "sw%", "r": "rt%", "n": "nx%"}
 
-    # results = query_sw(query, parameters)
+    # results = await query_sw(query, parameters)
 
     results = [
         {"nodeid": 1, "ip": "10.0.0.1", "hostname": "RT1001"},
@@ -68,14 +68,14 @@ def pull_network_inventory() -> List[Dict[str, Any]]:
     return results
 
 
-def pull_desktop_inventory() -> List[Dict[str, Any]]:
+async def pull_desktop_inventory() -> List[Dict[str, Any]]:
     query = """SELECT IPNode.IpNodeId as nodeid, IPNode.IPAddress as ip, Subnet.CIDR as cidr, IPNode.MAC as mac, IPNode.DhcpClientName as hostname
                 FROM IPAM.IPNode
                 INNER JOIN IPAM.Subnet ON IPNode.SubnetId = Subnet.SubnetId 
                 WHERE DhcpClientName LIKE @d OR DhcpClientName LIKE @l"""
     parameters = {"d": "desktop%", "l": "laptop%"}
 
-    # results = query_sw(query, parameters)
+    # results = await query_sw(query, parameters)
 
     results = [
         {"nodeid": 1, "ip": "10.101.10.1", "cidr": 24, "mac": "52-54-00-0A-BB-9D", "hostname": "PC1011.lab.local"},

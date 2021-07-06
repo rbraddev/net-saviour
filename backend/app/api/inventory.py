@@ -5,11 +5,17 @@ from edgedb import AsyncIOConnection
 
 from app.config import get_settings, Settings
 from app.db import get_acon
+from app.core.inventory.tasks import update_inventory
 from app.crud import inventory
 from app.models.pydantic.inventory import Device, Desktop
 
 router = APIRouter()
 
+
+@router.get("/update")
+async def start_update_task(inventory: str, con: AsyncIOConnection = Depends(get_acon)):
+    await update_inventory(con, inventory)
+    return {"message": f"Starting {inventory} inventory update"}
 
 @router.get("/network", response_model=List[Device])
 async def get_network_devices(
