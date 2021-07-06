@@ -28,9 +28,6 @@ services:
       - EDGEDB_USER=edgedb
       - EDGEDB_PASSWORD=edgedb
 
-  redis:
-    image: redis:6-alpine
-
   tacacs:
     container_name: tacacs
     image: lfkeitel/tacacs_plus:alpine
