@@ -9,18 +9,9 @@ settings: Settings = get_settings()
 
 
 device_info = {
-    "rt": {
-        "device_type":"router",
-        "platform": "ios"
-    },
-    "sw": {
-        "device_type": "switch", 
-        "platform": "ios"
-    },
-    "nx": {
-        "device_type":"nexus",
-        "platform": "nxos"
-    }
+    "rt": {"device_type": "router", "platform": "ios"},
+    "sw": {"device_type": "switch", "platform": "ios"},
+    "nx": {"device_type": "nexus", "platform": "nxos"},
 }
 
 

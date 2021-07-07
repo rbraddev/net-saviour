@@ -1,6 +1,4 @@
-from typing import Any, Dict, List
-
-# from app.models.edge.inventory import get_query_model
+from typing import *
 
 
 def get_type(value: Any) -> str:

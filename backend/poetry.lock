@@ -626,7 +626,7 @@ python-versions = "*"
 
 [[package]]
 name = "net-gsd"
-version = "0.1.0"
+version = "0.1.2"
 description = "Network Get Stuff Done"
 category = "main"
 optional = false
@@ -1949,8 +1949,8 @@ mypy-extensions = [
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
 ]
 net-gsd = [
-    {file = "net-gsd-0.1.0.tar.gz", hash = "sha256:1e7b4f2dc495c70debeb78fabcbb954d820a5cad2846a8e9a565f5116e42b4e8"},
-    {file = "net_gsd-0.1.0-py3-none-any.whl", hash = "sha256:15b08f3ad1948be7836e22fb33737b63eebed9d230f99bf7342c3fd49058ddb9"},
+    {file = "net-gsd-0.1.2.tar.gz", hash = "sha256:f09a443cb15ee809159e5b5ba36f7aa8ef4d5718d051ddf0928a0827845ee6ea"},
+    {file = "net_gsd-0.1.2-py3-none-any.whl", hash = "sha256:98b9a3cdf228e9a3a51bb2718fe7544d4595c4a5103451c324dbde20a324b30f"},
 ]
 netaddr = [
     {file = "netaddr-0.8.0-py2.py3-none-any.whl", hash = "sha256:9666d0232c32d2656e5e5f8d735f58fd6c7457ce52fc21c98d45f2af78f990ac"},

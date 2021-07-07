@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     SW_USER: str = os.environ.get("SW_USER")
     SW_PASSWORD: str = os.environ.get("SW_PASSWORD")
 
+    DATA_VLAN: str = os.environ.get("DATA_VLAN")
+
 
 @lru_cache
 def get_settings() -> BaseSettings:

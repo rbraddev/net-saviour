@@ -43,6 +43,7 @@ module inventory{
         };
         required property name -> str;
         property description -> str;
+        property vlan -> int16;
         property ip -> util::IP {
             constraint exclusive;
         };

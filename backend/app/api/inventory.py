@@ -1,11 +1,10 @@
-from typing import List, Union
+from typing import *
 
 from fastapi import APIRouter, Depends
 from edgedb import AsyncIOConnection
 
-from app.config import get_settings, Settings
 from app.db import get_acon
-from app.core.inventory.tasks import update_inventory
+from app.core.inventory.tasks import update_inventory, update_switch_interface_details
 from app.crud import inventory
 from app.models.pydantic.inventory import NetworkBasic, DesktopBasic
 
@@ -13,8 +12,10 @@ router = APIRouter()
 
 
 @router.get("/update")
-async def start_update_task(inventory: str, con: AsyncIOConnection = Depends(get_acon)):
-    await update_inventory(con, inventory)
+async def start_update_task(inventory: str, interfaces: bool = False, con: AsyncIOConnection = Depends(get_acon)):
+    await update_inventory(con, inventory.lower())
+    if inventory.lower() == "network" and interfaces:
+        await update_switch_interface_details(con)
     return {"message": f"Starting {inventory} inventory update"}
 
 

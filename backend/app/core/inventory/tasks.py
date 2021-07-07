@@ -2,7 +2,10 @@ import re
 
 from edgedb import AsyncIOConnection
 from deepdiff import DeepDiff
+from net_gsd import Runner
 
+from app.runner import get_runner
+from app.core.runner.tasks import get_switch_interface_detail
 from app.crud import inventory as inv
 from app.core.inventory.utils import pull_network_inventory, pull_desktop_inventory, get_site
 
@@ -78,3 +81,12 @@ async def update_inventory(con: AsyncIOConnection, inventory_type: str) -> None:
 
     else:
         print("Inventory already up to date")
+
+
+async def update_switch_interface_details(con: AsyncIOConnection):
+    runner: Runner = get_runner()
+    hosts = await inv.am_get(con, node_type="NetworkDevice", filter_criteria=[{"device_type": "switch"}], shape="basic")
+    result, failed = await runner.run_task(name="get desktop macs", task=get_switch_interface_detail, hosts=hosts)
+
+    print(result)
+    print(failed)
