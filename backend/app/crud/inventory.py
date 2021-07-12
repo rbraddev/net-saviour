@@ -221,3 +221,44 @@ async def asearch(con: AsyncIOConnection, *, search_string: str) -> Union[list, 
     #     for device in r:
     #         result.append(device)
     return result
+
+
+async def update_interfaces(con: AsyncIOConnection, hostname: str, interfacelist: list):
+    r = await con.query(
+        """
+        WITH MODULE inventory
+        UPDATE NetworkDevice
+        FILTER .hostname = <str>$hostname
+        SET {
+            interfaces += (
+                FOR interface IN {
+                    {json_array_unpack(<json>$interfacelist)}
+                }
+                UNION(
+                    INSERT Interface {
+                        name := re_match(r'\"(.*)\"', to_str(interface['name']))[0],
+                        description := re_match(r'\"(.*)\"', to_str(interface['description']))[0],
+                        mac := re_match(r'\"(.*)\"', to_str(interface['mac']))[0],
+                        ip := re_match(r'\"(.*)\"', to_str(interface['ip']))[0],
+                        cidr := to_int16(to_str(interface['cidr'])),
+                        vlan := to_int16(to_str(interface['vlan'])),
+                        desktop := (SELECT Desktop FILTER .mac = re_match(r'\"(.*)\"', to_str(interface['desktop']))[0])
+                    } UNLESS CONFLICT ON .mac
+                    ELSE (
+                        UPDATE Interface
+                        SET {
+                            name := re_match(r'\"(.*)\"', to_str(interface['name']))[0],
+                            description := re_match(r'\"(.*)\"', to_str(interface['description']))[0],
+                            ip := re_match(r'\"(.*)\"', to_str(interface['ip']))[0],
+                            cidr := to_int16(to_str(interface['cidr'])),
+                            vlan := to_int16(to_str(interface['vlan'])),
+                            desktop := (SELECT Desktop FILTER .mac = re_match(r'\"(.*)\"', to_str(interface['desktop']))[0])
+                        }
+                    )
+                )
+            )
+        }
+    """,
+        hostname=hostname,
+        interfacelist=json.dumps(interfacelist),
+    )

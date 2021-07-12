@@ -5,9 +5,11 @@ from deepdiff import DeepDiff
 from net_gsd import Runner
 
 from app.runner import get_runner
-from app.core.runner.tasks import get_switch_interface_detail
+from app.core.runner.tasks import get_switch_interface_detail, get_router_interface_detail
+from app.models.pydantic.inventory import Interface
 from app.crud import inventory as inv
 from app.core.inventory.utils import pull_network_inventory, pull_desktop_inventory, get_site
+from app.core.inventory.errors import InvalidInputParameters, NoHostsReturned
 
 
 inventory_dict = {
@@ -83,10 +85,64 @@ async def update_inventory(con: AsyncIOConnection, inventory_type: str) -> None:
         print("Inventory already up to date")
 
 
-async def update_switch_interface_details(con: AsyncIOConnection):
-    runner: Runner = get_runner()
-    hosts = await inv.am_get(con, node_type="NetworkDevice", filter_criteria=[{"device_type": "switch"}], shape="basic")
-    result, failed = await runner.run_task(name="get desktop macs", task=get_switch_interface_detail, hosts=hosts)
+async def update_interface_details(con: AsyncIOConnection, site: int = None, host: int = None):
+    if site and host:
+        raise InvalidInputParameters("Cannot run task with site and host details")
 
-    print(result)
-    print(failed)
+    filter_criteria = []
+    if site:
+        filter_criteria = [{"site": site}]
+    elif host:
+        filter_criteria = [{"nodeid": host}]
+
+    await update_switch_interface_details(con, filter_criteria)
+    await update_router_interface_details(con, filter_criteria)
+
+
+async def update_switch_interface_details(con: AsyncIOConnection, filter_criteria: list):
+    filter_criteria.append({"device_type": "switch"})
+    hosts = await inv.am_get(con, node_type="NetworkDevice", filter_criteria=filter_criteria, shape="basic")
+    if hosts:
+        runner: Runner = get_runner()
+        results, failed = await runner.run_task(
+            name="get switch interfaces", task=get_switch_interface_detail, hosts=hosts
+        )
+    else:
+        raise NoHostsReturned(f"Unable to run {__name__} due to no hosts being passed")
+
+    await update_interface_details_db(con, results)
+
+
+async def update_router_interface_details(con: AsyncIOConnection, filter_criteria: list):
+    filter_criteria.append({"device_type": "router"})
+    hosts = await inv.am_get(con, node_type="NetworkDevice", filter_criteria=filter_criteria, shape="basic")
+    print(hosts)
+    if hosts:
+        runner: Runner = get_runner()
+        results, failed = await runner.run_task(
+            name="get router interfaces", task=get_router_interface_detail, hosts=hosts
+        )
+        print(failed)
+    else:
+        raise NoHostsReturned(f"Unable to run {__name__} due to no hosts being passed")
+
+    await update_interface_details_db(con, results)
+
+
+async def update_interface_details_db(con: AsyncIOConnection, data: list):
+    for host, interfaces in data.items():
+        # print(interfaces)
+        interfacelist = [
+            Interface(
+                name=interface,
+                description=values.get("description") if values.get("description") else "",
+                mac=values.get("mac"),
+                ip=values.get("ip"),
+                cidr=int(values.get("cidr")) if values.get("cidr") else 0,
+                vlan=int(values.get("vlan")) if values.get("vlan") else 0,
+                desktop=values.get("desktop") if values.get("desktop") else "NODEVICE",
+            ).dict()
+            for interface, values in interfaces.items()
+        ]
+
+        await inv.update_interfaces(con, hostname=host, interfacelist=interfacelist)

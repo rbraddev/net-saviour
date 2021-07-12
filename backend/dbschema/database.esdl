@@ -22,7 +22,9 @@ module inventory{
         property platform -> str;
         property model -> str;
         property image -> str;
-        multi link interfaces -> Interface;
+        multi link interfaces -> Interface {
+            on target delete allow;
+        };
         index on (__subject__.nodeid);
     }
 
@@ -44,9 +46,7 @@ module inventory{
         required property name -> str;
         property description -> str;
         property vlan -> int16;
-        property ip -> util::IP {
-            constraint exclusive;
-        };
+        property ip -> util::IP;
         property cidr -> int16;
         link desktop -> Desktop;
         index on (__subject__.mac);

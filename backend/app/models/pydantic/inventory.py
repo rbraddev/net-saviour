@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import *
 from ipaddress import IPv4Address
 
 from pydantic import BaseModel
@@ -27,3 +27,13 @@ class Desktop(Device):
 
 class NetworkExtended(Device):
     interfaces: List[Dict[str, str]]
+
+
+class Interface(BaseModel):
+    name: str
+    description: str
+    mac: Optional[str]
+    ip: Optional[str]
+    cidr: Optional[int]
+    vlan: Optional[int]
+    desktop: Optional[str]
