@@ -140,24 +140,19 @@ async def am_get(
 
 
 async def asearch(con: AsyncIOConnection, *, search_string: str) -> Union[list, None]:
-    result = []
+    result = {
+        "network": [],
+        "desktop": [],
+        "interface": []
+    }
     try:
         r = await con.query_json(
             f"""WITH MODULE inventory
                 SELECT NetworkDevice {{
-                id,
                 nodeid,
                 ip,
                 hostname,
-                interfaces : {{
-                    name,
-                    ip,
-                    mac,
-                    desktop: {{
-                        hostname,
-                        ip
-                    }}
-                }}
+                site,
             }} FILTER .ip ilike '%{search_string}%' or .hostname ilike '%{search_string}%'"""
         )
     except NoDataError:
@@ -165,61 +160,65 @@ async def asearch(con: AsyncIOConnection, *, search_string: str) -> Union[list, 
     else:
         r = json.loads(r)
         for device in r:
-            result.append(device)
+            result["network"].append(device)
 
     try:
         r = await con.query_json(
             f"""WITH MODULE inventory 
                 SELECT Desktop {{
-                    id,
+                    nodeid,
                     ip,
+                    cidr,
                     mac,
                     hostname,
+                    site,
                     switch := (
-                        SELECT NetworkDevice {{
+                        SELECT .<desktop[IS Interface].<interfaces[IS NetworkDevice] {{
                             hostname,
                             nodeid,
-                            ip
-                        }} FILTER .interfaces.desktop.ip like '%{search_string}%' or .interfaces.desktop.hostname like '%{search_string}%'
+                            ip,
+                        }}
                     ),
-                    interface := (
-                        SELECT Interface {{
-                            name
-                        }} FILTER .desktop.ip like '%{search_string}%' or .desktop.hostname like '%{search_string}%'
-                    )
+                    interface := .<desktop[IS Interface] {{name}}
                 }}
-                FILTER .ip ilike '%{search_string}%' or .hostname ilike '%{search_string}%' or .mac like '%{search_string}%'"""
+                FILTER .ip ilike '%{search_string}%' or .hostname ilike '%{search_string}%' or .mac ilike '%{search_string}%'"""
         )
     except NoDataError:
         pass
     else:
         r = json.loads(r)
         for device in r:
-            result.append(device)
+            result["desktop"].append(device)
 
-    # try:
-    r = await con.query_json(
-        f"""WITH MODULE inventory
-            SELECT Interface {{
-                switch := (
-                    SELECT Interface.<interfaces[IS NetworkDevice] {{
-                        hostname
+    try:
+        r = await con.query_json(
+            f"""WITH MODULE inventory
+                SELECT Interface {{
+                    switch := (
+                        SELECT Interface.<interfaces[IS NetworkDevice] {{
+                            nodeid,
+                            hostname,
+                            ip,
+                            site,
+                        }}
+                    ),
+                    name,
+                    ip,
+                    cidr,
+                    mac,
+                    vlan,
+                    desktop : {{
+                        hostname,
+                        ip
                     }}
-                ),
-                name,
-                ip,
-                desktop : {{
-                    hostname,
-                    ip
-                }}
-        }} FILTER .ip like '%{search_string}%' or .mac like '%{search_string}%'"""
-    )
-    # except NoDataError:
-    #     pass
-    # else:
-    #     r = json.loads(r)
-    #     for device in r:
-    #         result.append(device)
+            }} FILTER .ip like '%{search_string}%' or .mac like '%{search_string}%'"""
+        )
+    except NoDataError:
+        pass
+    else:
+        r = json.loads(r)
+        for device in r:
+            result["interface"].append(device)
     return result
 
 

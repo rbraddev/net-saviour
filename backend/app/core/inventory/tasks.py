@@ -9,7 +9,6 @@ from app.core.runner.tasks import get_switch_interface_detail, get_router_interf
 from app.models.pydantic.inventory import Interface
 from app.crud import inventory as inv
 from app.core.inventory.utils import pull_network_inventory, pull_desktop_inventory, get_site
-from app.core.inventory.errors import InvalidInputParameters, NoHostsReturned
 
 
 inventory_dict = {
@@ -27,6 +26,7 @@ inventory_dict = {
 
 
 async def update_inventory(con: AsyncIOConnection, inventory_type: str) -> None:
+    """Pulls network and desktop inventory from Solarwinds"""
     if inventory_type not in ["network", "desktop"]:
         raise ValueError("Inventory must be of type 'network' or 'desktop'")
 
@@ -85,15 +85,12 @@ async def update_inventory(con: AsyncIOConnection, inventory_type: str) -> None:
         print("Inventory already up to date")
 
 
-async def update_interface_details(con: AsyncIOConnection, site: int = None, host: int = None):
-    if site and host:
-        raise InvalidInputParameters("Cannot run task with site and host details")
-
-    filter_criteria = []
+async def update_interface_details(con: AsyncIOConnection, site: str = None, host: int = None):
+    filter_criteria = [{"active": True}]
     if site:
-        filter_criteria = [{"site": site}]
+        filter_criteria.append({"site": str(site)})
     elif host:
-        filter_criteria = [{"nodeid": host}]
+        filter_criteria.append({"nodeid": int(host)})
 
     await update_switch_interface_details(con, filter_criteria)
     await update_router_interface_details(con, filter_criteria)
@@ -107,31 +104,24 @@ async def update_switch_interface_details(con: AsyncIOConnection, filter_criteri
         results, failed = await runner.run_task(
             name="get switch interfaces", task=get_switch_interface_detail, hosts=hosts
         )
-    else:
-        raise NoHostsReturned(f"Unable to run {__name__} due to no hosts being passed")
-
-    await update_interface_details_db(con, results)
+        # ADD LOGGING FOR NO HOSTS
+        await update_interface_details_db(con, results)
 
 
 async def update_router_interface_details(con: AsyncIOConnection, filter_criteria: list):
     filter_criteria.append({"device_type": "router"})
     hosts = await inv.am_get(con, node_type="NetworkDevice", filter_criteria=filter_criteria, shape="basic")
-    print(hosts)
     if hosts:
         runner: Runner = get_runner()
         results, failed = await runner.run_task(
             name="get router interfaces", task=get_router_interface_detail, hosts=hosts
         )
-        print(failed)
-    else:
-        raise NoHostsReturned(f"Unable to run {__name__} due to no hosts being passed")
-
-    await update_interface_details_db(con, results)
+        # ADD LOGGING FOR NO HOSTS
+        await update_interface_details_db(con, results)
 
 
 async def update_interface_details_db(con: AsyncIOConnection, data: list):
     for host, interfaces in data.items():
-        # print(interfaces)
         interfacelist = [
             Interface(
                 name=interface,
