@@ -1,6 +1,6 @@
 module inventory{
     abstract type Device{
-                required property hostname -> str {
+            required property hostname -> str {
             constraint exclusive;
         };
         required property ip -> util::IP {
@@ -15,7 +15,7 @@ module inventory{
     }
 
     type NetworkDevice extending Device{
-        required property nodeid -> int64 {
+        required property nodeid -> int16 {
             constraint exclusive;
         };
         property device_type -> str;
@@ -29,7 +29,7 @@ module inventory{
     }
 
     type Desktop extending Device{
-        required property nodeid -> int64 {
+        required property nodeid -> int16 {
             constraint exclusive;
         };
         required property mac -> str {

@@ -1,0 +1,2 @@
+class NoHostsFound(Exception):
+    pass

@@ -28,10 +28,15 @@ services:
       - EDGEDB_USER=edgedb
       - EDGEDB_PASSWORD=edgedb
 
-  tacacs:
-    container_name: tacacs
-    image: lfkeitel/tacacs_plus:alpine
-    expose:
-      - 49
+  redis:
+    container_name: redis
+    image: redis
+
+  # tacacs:
+  #   container_name: tacacs
+  #   image: lfkeitel/tacacs_plus:alpine
+  #   expose:
+  #     - 49
+  
 volumes:
   edgedb-data:

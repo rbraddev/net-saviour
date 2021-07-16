@@ -1,11 +1,14 @@
 from typing import List, Dict, Any, Union
 import json
+import logging
 
 from edgedb import BlockingIOConnection, AsyncIOConnection
 from edgedb.errors import NoDataError, ConstraintViolationError
 
 from app.models.edge.inventory import get_shape
 from app.core.utils import get_filter_str, get_filter_criteria, get_query
+
+log = logging.getLogger("uvicorn")
 
 
 def create(con: BlockingIOConnection, *, node_type: str, data: dict) -> Union[str, None]:
@@ -139,12 +142,21 @@ async def am_get(
     return json.loads(result)
 
 
+async def acount(con: AsyncIOConnection, *, node_type: str, filter_criteria: List[Dict[str, Any]] = []):
+    try:
+        result = await con.query(
+            f"""WITH MODULE inventory
+            {'SELECT count (' + node_type + ' FILTER '+ get_filter_str(filter_criteria) +')'
+            if filter_criteria else 'SELECT count(' + node_type + ')'}""",
+            **get_filter_criteria(filter_criteria),
+        )
+    except NoDataError:
+        return None
+    return result[0]
+
+
 async def asearch(con: AsyncIOConnection, *, search_string: str) -> Union[list, None]:
-    result = {
-        "network": [],
-        "desktop": [],
-        "interface": []
-    }
+    result = {"network": [], "desktop": [], "interface": []}
     try:
         r = await con.query_json(
             f"""WITH MODULE inventory

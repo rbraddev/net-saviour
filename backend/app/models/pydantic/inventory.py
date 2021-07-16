@@ -41,7 +41,7 @@ class Interface(BaseModel):
     ip: Optional[str]
     cidr: Optional[int]
     vlan: Optional[int]
-    desktop: Optional[DesktopBasic]
+    desktop: Union[Optional[DesktopBasic], str]
 
 
 class NetworkExtended(Device):

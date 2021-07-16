@@ -15,6 +15,8 @@ EDGEDB_DB=edgedb
 EDGEDB_USER=edgedb
 EDGEDB_PASSWORD=edgedb
 
+REDIS_SERVER=redis
+
 SW_HOST=local
 SW_USER=user
 SW_PASSWORD=password

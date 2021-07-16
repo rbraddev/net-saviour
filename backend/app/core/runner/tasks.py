@@ -1,12 +1,16 @@
+from asyncio.tasks import Task
 from net_gsd.host import Host
 
 from app.config import Settings, get_settings
+from app.core.tasks.tracker import track
 
 settings: Settings = get_settings()
 
 
+@track
 async def get_switch_interface_detail(host: Host) -> dict:
     """Retrieves switch description, mac, ip, cidr, vlan and desktop details"""
+
     result = await host.send_command(["show interfaces", "show vlan", "show mac address-table"])
     result_dict = {}
 
@@ -20,9 +24,11 @@ async def get_switch_interface_detail(host: Host) -> dict:
         result["show mac address-table"]["mac_table"]["vlans"][str(settings.DATA_VLAN)]["mac_addresses"]
     ):
         result_dict[record[0]].update(record[1])
+
     return result_dict
 
 
+@track
 async def get_router_interface_detail(host: Host) -> dict:
     """Retrieves router description, mac, ip, cidr"""
     result = await host.send_command(["show interfaces"])

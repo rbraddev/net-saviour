@@ -32,7 +32,7 @@ shapes = {
                     mac,
                 }
             }           
-        }"""
+        }""",
     },
     "Desktop": {
         "basic": """{

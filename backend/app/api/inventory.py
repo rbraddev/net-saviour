@@ -3,31 +3,28 @@ from typing import *
 from fastapi import APIRouter, Depends, HTTPException
 from edgedb import AsyncIOConnection
 
-from app.db import get_acon
-from app.core.inventory.tasks import update_inventory, update_interface_details
+from app.db import get_db_acon
+from app.redis import get_redis_con
+from app.core.inventory.tasks import update_inventory
 from app.crud import inventory
-from app.models.pydantic.inventory import NetworkBasic, DesktopBasic, NetworkExtended, Search
+from app.models.pydantic.inventory import DesktopBasic, NetworkExtended, Search
 
 router = APIRouter()
 
 
 @router.get("/update", status_code=201)
-async def start_update_task(inventory: str, con: AsyncIOConnection = Depends(get_acon)):
+async def start_update_task(inventory: str, con: AsyncIOConnection = Depends(get_db_acon)):
     """Update the SOT inventory of network devices and desktops"""
-    await update_inventory(con, inventory.lower())
-    return {"message": f"Starting {inventory} inventory update task"}
+    try:
+        await update_inventory(con, inventory.lower())
+    except:
+        raise HTTPException(status_code=500, detail="Error occured updating the inventory, please see logs")
+    return {"message": f"{inventory} inventory update task completed"}
 
-@router.get("/update_interfaces", status_code=201)
-async def start_update_interface_task(site: str = None, nodeid: int = None, con: AsyncIOConnection = Depends(get_acon)):
-    """Update the interface details of all active nodes"""
-    if site and nodeid:
-        raise HTTPException(status_code=400, detail="Cannot filter by site and nodeid")
-    await update_interface_details(con, site=site, host=nodeid)
-    return {"message": f"Starting interface update task"}
 
 @router.get("/network", response_model=List[NetworkExtended], status_code=200)
 async def get_network_devices(
-    con: AsyncIOConnection = Depends(get_acon),
+    con: AsyncIOConnection = Depends(get_db_acon),
     site: str = None,
     ip: str = None,
     hostname: str = None,
@@ -56,7 +53,7 @@ async def get_network_devices(
 
 @router.get("/desktop", response_model=List[DesktopBasic], status_code=200)
 async def get_network_devices(
-    con: AsyncIOConnection = Depends(get_acon),
+    con: AsyncIOConnection = Depends(get_db_acon),
     site: str = None,
     ip: str = None,
     hostname: str = None,
@@ -78,7 +75,7 @@ async def get_network_devices(
 @router.get("/search", response_model=Search, status_code=200)
 async def search_network_devices(
     q: str,
-    con: AsyncIOConnection = Depends(get_acon),
+    con: AsyncIOConnection = Depends(get_db_acon),
 ):
     """search for network devices and desktops by partial or complete ip, mac or hostname"""
     devices = await inventory.asearch(con, search_string=q)

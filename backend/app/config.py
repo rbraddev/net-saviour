@@ -5,7 +5,7 @@ from functools import lru_cache
 
 from pydantic import BaseSettings
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("uvicorn")
 
 
 class Settings(BaseSettings):
@@ -18,6 +18,8 @@ class Settings(BaseSettings):
 
     API_USER: str = os.environ.get("API_USER")
     API_PASSWORD: str = os.environ.get("API_PASSWORD")
+
+    REDIS_SERVER: str = os.environ.get("REDIS_SERVER", "redis")
 
     EDGEDB_HOST: str = os.environ.get("EDGEDB_HOST", "localhost")
     EDGEDB_USER: str = os.environ.get("EDGEDB_USER", "edgedb")

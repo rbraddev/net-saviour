@@ -1,5 +1,7 @@
 from typing import *
 
+from app.core.inventory.errors import NoHostsFound
+
 
 def get_type(value: Any) -> str:
     if type(value) == bool:
@@ -7,7 +9,7 @@ def get_type(value: Any) -> str:
     elif type(value) == str:
         return "<str>"
     elif type(value) == int:
-        return "<int64>"
+        return "<int16>"
     elif type(value) == set:
         return "<set>"
     else:
@@ -22,9 +24,12 @@ def get_query(data: Dict[str, Any]) -> str:
 
 def get_filter_str(data: List[Dict[str, Any]]) -> str:
     filter_string = ""
+    if any("nodeid" in key for key in data):
+        return ".nodeid in array_unpack(<array<int16>>$nodeid) and .active = true"
+
     for item in data:
         for k, v in item.items():
-            if k in ["site", "hostname", "ip", "nodeid", "platform", "active", "device_type"]:
+            if k in ["site", "hostname", "ip", "platform", "active", "device_type"]:
                 if type(v) == list:
                     filter_string += (
                         f"{' and ' if filter_string else ''}.{k} in array_unpack(<array{get_type(v[0])}>${k})"
@@ -33,14 +38,22 @@ def get_filter_str(data: List[Dict[str, Any]]) -> str:
                     filter_string += f"{' and ' if filter_string else ''}.{k} = {get_type(v)}${k}"
             else:
                 raise KeyError(f"{k} is an invalid key")
+    if not filter_string:
+        raise NoHostsFound("Query returned no hosts")
     return filter_string
 
 
 def get_filter_criteria(data: List[Dict[str, Any]]) -> Dict[str, Any]:
     criteria = {}
-    for d in data:
-        for k, v in d.items():
-            criteria.update({k: v})
+    if any("nodeid" in key for key in data):
+        for d in data:
+            for k, v in d.items():
+                if k == "nodeid":
+                    criteria.update({k: v})
+    else:
+        for d in data:
+            for k, v in d.items():
+                criteria.update({k: v})
     return criteria
 
 
