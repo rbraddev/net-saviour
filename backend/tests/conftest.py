@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import *
 
 import pytest
 from starlette.testclient import TestClient

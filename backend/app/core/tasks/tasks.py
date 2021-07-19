@@ -16,7 +16,7 @@ log = logging.getLogger("uvicorn")
 
 
 async def update_interface_details(con: AsyncIOConnection, tracker: TaskTracker, site: str = None, host: int = None):
-    filter_criteria = [{"active": True}]
+    filter_criteria = [{"active": True}, {"device_type": ["router", "switch"]}]
     if site:
         filter_criteria.append({"site": site.split(",")})
     elif host:
@@ -38,6 +38,8 @@ async def update_switch_interface_details(con: AsyncIOConnection, hosts: list, t
             name="get switch interfaces", task=get_switch_interface_detail, hosts=hosts, tracker=tracker
         )
         await update_interface_details_db(con, results)
+        if failed:
+            await tracker.add_failed(failed)
 
 
 async def update_router_interface_details(con: AsyncIOConnection, hosts: list, tracker: TaskTracker):
@@ -46,8 +48,9 @@ async def update_router_interface_details(con: AsyncIOConnection, hosts: list, t
         results, failed = await runner.run_task(
             name="get router interfaces", task=get_router_interface_detail, hosts=hosts, tracker=tracker
         )
-        # ADD LOGGING FOR NO HOSTS
         await update_interface_details_db(con, results)
+        if failed:
+            await tracker.add_failed(failed)
 
 
 async def update_interface_details_db(con: AsyncIOConnection, data: list):

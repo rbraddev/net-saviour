@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from uuid import uuid4
 from itertools import chain
 import logging
+import json
 
 from aioredis import RedisConnection
 
@@ -33,6 +34,13 @@ class TaskTracker:
             else:
                 raise NoTaskFound("No tasks found with Task ID provided")
 
+    async def add_failed(self, failed: list):
+        await self._con.execute("LPUSH", f"{self.task_id}:failed", *[str(host.__dict__) for host in failed])
+
+    async def _get_failed(self):
+        failed = await self._con.execute("LRANGE", f"{self.task_id}:failed", "0", "-1", encoding="utf-8")
+        return failed
+
     async def completed(self):
         await self._con.execute("HINCRBY", self.task_id, "complete", "1")
 
@@ -49,6 +57,7 @@ class TaskTracker:
         await self._con.execute("HSET", self.task_id, *chain.from_iterable(data.items()))
 
     async def getall(self):
+        task_dict = {}
         task_data = await self._con.execute("HGETALL", self.task_id)
         if task_data:
             task_dict = {k: v for k, v in zip(*[iter(task_data)] * 2)}
@@ -56,7 +65,12 @@ class TaskTracker:
             task_result = task_dict.get("result")
             if task_result:
                 task_dict["result"] = literal_eval(task_result)
-        return task_dict if task_dict else {}
+
+            failed_hosts = await self._get_failed()
+            if failed_hosts:
+                task_dict["failed_count"] = len(failed_hosts)
+                task_dict["failed"] = [literal_eval(host) for host in failed_hosts]
+        return task_dict
 
     async def get(self, key: str) -> Union[str, dict]:
         value = await self._con.execute("HGET", self.task_id, key, encoding="utf-8")
@@ -71,9 +85,9 @@ async def create_tracker(con: RedisConnection, task_id: str = None, name: str = 
 
 def track(func):
     @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
+    async def wrapper(host, kwargs):
         tracker: TaskTracker = kwargs["tracker"]
-        result = await func(*args)
+        result = await func(host)
         await tracker.completed()
         return result
 

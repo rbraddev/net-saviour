@@ -34,24 +34,8 @@ async def start_update_interface_task(
     return {"message": f"Starting interface update task", "task_id": tracker.task_id}
 
 
-@router.get("/testset")
-async def testset(task_id: str = None, con: RedisConnection = Depends(get_redis_con)):
-    if not task_id:
-        task_id = str(uuid4())
-    task = TaskTracker(con, task_id)
-    await task.set()
-    return {"message": "added value", "task_id": task_id}
-
-
-@router.get("/testget")
-async def testget(data: str, task_id: str, con: RedisConnection = Depends(get_redis_con)):
-    task = TaskTracker(con, task_id)
-    res = await task.get(data)
-    return {"message": res}
-
-
-@router.get("/testgetall")
-async def testgetall(task_id: str, con: RedisConnection = Depends(get_redis_con)):
-    task = TaskTracker(con, task_id)
-    res = await task.getall()
-    return {"message": res}
+@router.get("/get_task")
+async def get_task(task_id: str, con: RedisConnection = Depends(get_redis_con)):
+    task = await create_tracker(con, task_id=task_id)
+    result = await task.getall()
+    return {"task": result}
