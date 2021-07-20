@@ -2,12 +2,12 @@ from typing import *
 
 from fastapi import APIRouter, Depends, HTTPException
 from edgedb import AsyncIOConnection
+from edgedb.errors import EdgeQLSyntaxError
 
 from app.db import get_db_acon
-from app.redis import get_redis_con
 from app.core.inventory.tasks import update_inventory
 from app.crud import inventory
-from app.models.pydantic.inventory import DesktopBasic, NetworkExtended, Search
+from app.models.pydantic.inventory import DesktopBasic, DesktopExtended, NetworkBasic, NetworkExtended, Search
 
 router = APIRouter()
 
@@ -22,7 +22,7 @@ async def start_update_task(inventory: str, con: AsyncIOConnection = Depends(get
     return {"message": f"{inventory} inventory update task completed"}
 
 
-@router.get("/network", response_model=List[NetworkExtended], status_code=200)
+@router.get("/network", response_model=List[Union[NetworkExtended, NetworkBasic]], status_code=200)
 async def get_network_devices(
     con: AsyncIOConnection = Depends(get_db_acon),
     site: str = None,
@@ -31,9 +31,13 @@ async def get_network_devices(
     platform: str = None,
     device_type: str = None,
     active: bool = True,
-    shape: str = "basic",
+    detail: str = "basic",
 ):
-    """Search for network devices"""
+    """Search for network devices.
+    device_types -> router, switch
+    platorm -> ios, nxos
+    detail -> basic, extended
+    """
     filter_criteria = []
     if site:
         filter_criteria.append({"site": site.split(",")})
@@ -47,17 +51,21 @@ async def get_network_devices(
         filter_criteria.append({"device_type": device_type.split(",")})
     filter_criteria.append({"active": active})
 
-    devices = await inventory.am_get(con, node_type="NetworkDevice", filter_criteria=filter_criteria, shape=shape)
+    try:
+        devices = await inventory.am_get(con, node_type="NetworkDevice", filter_criteria=filter_criteria, shape=detail)
+    except EdgeQLSyntaxError:
+        raise HTTPException(status_code=400, detail="Invalid parameters")
+
     return devices
 
 
-@router.get("/desktop", response_model=List[DesktopBasic], status_code=200)
+@router.get("/desktop", status_code=200, response_model=List[Union[DesktopExtended, DesktopBasic]])
 async def get_network_devices(
     con: AsyncIOConnection = Depends(get_db_acon),
     site: str = None,
     ip: str = None,
     hostname: str = None,
-    shape: str = "basic",
+    detail: str = "basic",
 ):
     """Search for desktops"""
     filter_criteria = []
@@ -68,7 +76,10 @@ async def get_network_devices(
     if hostname:
         filter_criteria.append({"hostname": hostname.split(",")})
 
-    devices = await inventory.am_get(con, node_type="Desktop", filter_criteria=filter_criteria, shape=shape)
+    try:
+        devices = await inventory.am_get(con, node_type="Desktop", filter_criteria=filter_criteria, shape=detail)
+    except EdgeQLSyntaxError:
+        raise HTTPException(status_code=400, detail="Invalid parameters")
     return devices
 
 

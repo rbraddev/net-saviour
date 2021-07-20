@@ -1,5 +1,13 @@
 shapes = {
     "NetworkDevice": {
+        "import": """{
+            nodeid,
+            ip,
+            hostname,
+            active,
+            device_type,
+            platform
+        }""",
         "basic": """{
             nodeid,
             hostname,
@@ -35,6 +43,13 @@ shapes = {
         }""",
     },
     "Desktop": {
+        "import": """{
+            nodeid,
+            ip,
+            cidr,
+            mac,
+            hostname
+        }""",
         "basic": """{
             nodeid,
             hostname,
@@ -43,6 +58,42 @@ shapes = {
             cidr,
             mac
         }""",
+        "extended": """{
+            nodeid,
+            ip,
+            cidr,
+            mac,
+            hostname,
+            site,
+            switch := (
+                SELECT .<desktop[IS Interface].<interfaces[IS NetworkDevice] {
+                    hostname,
+                    nodeid,
+                    ip,
+                    interface := array_agg(Desktop.<desktop[IS Interface] {name})[0]
+                }
+            ),
+        }""",
+    },
+    "Interface": {
+        "extended": """{
+            switch := (
+                SELECT Interface.<interfaces[IS NetworkDevice] {
+                    nodeid,
+                    hostname,
+                    ip,
+                    site,
+                }
+            ),
+            name,
+            ip,
+            cidr,
+            mac,
+            vlan,
+            desktop : {
+                hostname,
+                ip
+        }"""
     },
 }
 

@@ -89,7 +89,7 @@ async def acount(con: AsyncIOConnection, *, node_type: str, filter_criteria: Lis
     return result[0]
 
 
-async def asearch(con: AsyncIOConnection, *, search_string: str) -> Union[list, None]:
+async def asearch(con: AsyncIOConnection, *, search_string: str):
     result = {"network": [], "desktop": [], "interface": []}
     try:
         r = await con.query_json(
@@ -111,22 +111,8 @@ async def asearch(con: AsyncIOConnection, *, search_string: str) -> Union[list, 
     try:
         r = await con.query_json(
             f"""WITH MODULE inventory 
-                SELECT Desktop {{
-                    nodeid,
-                    ip,
-                    cidr,
-                    mac,
-                    hostname,
-                    site,
-                    switch := (
-                        SELECT .<desktop[IS Interface].<interfaces[IS NetworkDevice] {{
-                            hostname,
-                            nodeid,
-                            ip,
-                        }}
-                    ),
-                    interface := .<desktop[IS Interface] {{name}}
-                }}
+                SELECT Desktop
+                    {get_shape("Desktop", "extended")}
                 FILTER .ip ilike '%{search_string}%' or .hostname ilike '%{search_string}%' or .mac ilike '%{search_string}%'"""
         )
     except NoDataError:
@@ -139,24 +125,8 @@ async def asearch(con: AsyncIOConnection, *, search_string: str) -> Union[list, 
     try:
         r = await con.query_json(
             f"""WITH MODULE inventory
-                SELECT Interface {{
-                    switch := (
-                        SELECT Interface.<interfaces[IS NetworkDevice] {{
-                            nodeid,
-                            hostname,
-                            ip,
-                            site,
-                        }}
-                    ),
-                    name,
-                    ip,
-                    cidr,
-                    mac,
-                    vlan,
-                    desktop : {{
-                        hostname,
-                        ip
-                    }}
+                SELECT Interface
+                    {get_shape("Interface", "extended")}
             }} FILTER .ip like '%{search_string}%' or .mac like '%{search_string}%'"""
         )
     except NoDataError:

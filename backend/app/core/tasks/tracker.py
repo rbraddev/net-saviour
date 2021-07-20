@@ -58,7 +58,7 @@ class TaskTracker:
 
     async def getall(self):
         task_dict = {}
-        task_data = await self._con.execute("HGETALL", self.task_id)
+        task_data = await self._con.execute("HGETALL", self.task_id, encoding="utf-8")
         if task_data:
             task_dict = {k: v for k, v in zip(*[iter(task_data)] * 2)}
             task_dict.update({"task_id": self.task_id})

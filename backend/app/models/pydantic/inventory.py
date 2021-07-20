@@ -23,15 +23,15 @@ class DesktopBasic(Device):
     mac: str
 
 
-class NetworkSearch(BaseModel):
+class DesktopSwitch(BaseModel):
     hostname: str
     ip: IPv4Address
     nodeid: int
+    interface: Dict[str, str]
 
 
-class Desktop(Device):
-    switch: List[NetworkSearch]
-    interface: List[Dict[str, str]]
+class DesktopExtended(DesktopBasic):
+    switch: List[DesktopSwitch]
 
 
 class Interface(BaseModel):
@@ -54,5 +54,5 @@ class InterfaceSearch(Interface):
 
 class Search(BaseModel):
     network: Optional[List[Device]]
-    desktop: Optional[List[Desktop]]
+    desktop: Optional[List[DesktopExtended]]
     interface: Optional[list[InterfaceSearch]]

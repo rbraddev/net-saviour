@@ -9,9 +9,11 @@ from edgedb import AsyncIOConnection
 
 from app.core.tasks.tracker import TaskTracker, create_tracker
 from app.core.tasks.tasks import update_interface_details
+from app.core.tasks.errors import NoTaskFound
 from app.db import get_db_acon
 from app.redis import get_redis_con
 import app.crud.inventory as inv
+from app.models.pydantic.tasks import TaskStats
 
 log = logging.getLogger("uvicorn")
 
@@ -34,8 +36,13 @@ async def start_update_interface_task(
     return {"message": f"Starting interface update task", "task_id": tracker.task_id}
 
 
-@router.get("/get_task")
-async def get_task(task_id: str, con: RedisConnection = Depends(get_redis_con)):
-    task = await create_tracker(con, task_id=task_id)
+@router.get("/task_stats", response_model=TaskStats)
+async def get_task_stats(task_id: str, con: RedisConnection = Depends(get_redis_con)):
+
+    try:
+        task = await create_tracker(con, task_id=task_id)
+    except NoTaskFound:
+        raise HTTPException(status_code=400, detail="No task found with that ID")
     result = await task.getall()
-    return {"task": result}
+
+    return result
